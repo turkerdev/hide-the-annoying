@@ -1,0 +1,205 @@
+/**
+ * Styles for Hide The Annoying on X/Twitter
+ */
+
+/* Collapsed placeholder banner */
+.hta-collapsed-banner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: rgba(30, 39, 50, 0.7) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(244, 33, 46, 0.25) !important;
+  border-left: 4px solid #f4212e !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  margin: 6px 12px !important;
+  color: #e7e9ea !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .hta-collapsed-banner {
+    background: rgba(247, 249, 249, 0.95) !important;
+    border: 1px solid rgba(244, 33, 46, 0.25) !important;
+    border-left: 4px solid #f4212e !important;
+    color: #0f1419 !important;
+  }
+}
+
+.hta-collapsed-banner:hover {
+  border-color: rgba(244, 33, 46, 0.5) !important;
+  background: rgba(38, 49, 64, 0.8) !important;
+}
+
+.hta-banner-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+}
+
+.hta-icon {
+  font-size: 15px !important;
+  flex-shrink: 0 !important;
+}
+
+.hta-text {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.hta-handle {
+  font-weight: 700 !important;
+  color: #1d9bf0 !important;
+}
+
+.hta-category-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2px 7px !important;
+  border-radius: 9999px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-left: 4px !important;
+}
+
+.hta-tag-soccer {
+  background: rgba(0, 186, 124, 0.18) !important;
+  color: #00ba7c !important;
+  border: 1px solid rgba(0, 186, 124, 0.3) !important;
+}
+
+.hta-tag-finance {
+  background: rgba(255, 173, 31, 0.18) !important;
+  color: #ffad1f !important;
+  border: 1px solid rgba(255, 173, 31, 0.3) !important;
+}
+
+.hta-tag-politics {
+  background: rgba(244, 33, 46, 0.18) !important;
+  color: #f4212e !important;
+  border: 1px solid rgba(244, 33, 46, 0.3) !important;
+}
+
+.hta-tag-custom, .hta-tag-blocklisted {
+  background: rgba(120, 86, 255, 0.18) !important;
+  color: #9d7bff !important;
+  border: 1px solid rgba(120, 86, 255, 0.3) !important;
+}
+
+.hta-banner-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  margin-left: 10px !important;
+}
+
+.hta-btn {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: inherit !important;
+  padding: 4px 10px !important;
+  border-radius: 9999px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  outline: none !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .hta-btn {
+    border-color: rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+.hta-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.hta-btn-allow:hover {
+  color: #00ba7c !important;
+  border-color: #00ba7c !important;
+}
+
+/* Hard Hidden Mode */
+.hta-hard-hidden {
+  display: none !important;
+}
+
+/* Collapsed state on tweet content */
+.hta-tweet-collapsed > div:not(.hta-collapsed-banner) {
+  display: none !important;
+}
+
+/* Badge Mode: Injected Badge in User-Name row */
+.hta-inline-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 1px 7px !important;
+  border-radius: 9999px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  margin-left: 6px !important;
+  vertical-align: middle !important;
+  border: 1px solid transparent !important;
+}
+
+.hta-inline-badge.hta-badge-soccer {
+  background: rgba(0, 186, 124, 0.15) !important;
+  color: #00ba7c !important;
+  border-color: rgba(0, 186, 124, 0.3) !important;
+}
+
+.hta-inline-badge.hta-badge-finance {
+  background: rgba(255, 173, 31, 0.15) !important;
+  color: #ffad1f !important;
+  border-color: rgba(255, 173, 31, 0.3) !important;
+}
+
+.hta-inline-badge.hta-badge-politics {
+  background: rgba(244, 33, 46, 0.15) !important;
+  color: #f4212e !important;
+  border-color: rgba(244, 33, 46, 0.3) !important;
+}
+
+.hta-inline-badge.hta-badge-custom {
+  background: rgba(120, 86, 255, 0.15) !important;
+  color: #9d7bff !important;
+  border-color: rgba(120, 86, 255, 0.3) !important;
+}
+
+/* Profile page warning banner */
+.hta-profile-warning {
+  margin: 12px 16px !important;
+  padding: 12px 16px !important;
+  border-radius: 14px !important;
+  background: rgba(244, 33, 46, 0.1) !important;
+  border: 1px solid rgba(244, 33, 46, 0.3) !important;
+  color: #e7e9ea !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 14px !important;
+  box-sizing: border-box !important;
+}
+
+@media (prefers-color-scheme: light) {
+  .hta-profile-warning {
+    color: #0f1419 !important;
+  }
+}

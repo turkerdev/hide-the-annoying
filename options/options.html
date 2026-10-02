@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hide The Annoying - Settings & Management</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="../icons/icon-48.png" alt="Logo" class="logo">
+        <div>
+          <h2>Hide The Annoying</h2>
+          <span class="version">Settings Dashboard</span>
+        </div>
+      </div>
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="tab-providers">🤖 Decision Providers</button>
+        <button class="nav-item" data-tab="tab-rules">⚙️ Topics & Sensitivity</button>
+        <button class="nav-item" data-tab="tab-lists">📋 Allowlist & Blocklist</button>
+        <button class="nav-item" data-tab="tab-cache">💾 Cached Users (<span id="cache-count">0</span>)</button>
+        <button class="nav-item" data-tab="tab-backup">🔄 Backup & Restore</button>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="btn-save-all" class="btn btn-primary btn-full">Save All Changes</button>
+        <div id="save-status" class="save-status">All changes saved</div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <!-- TAB 1: Decision Providers -->
+      <section id="tab-providers" class="tab-panel active">
+        <header class="panel-header">
+          <h2>TypeSafe Jev Engine & Prompts</h2>
+          <p>Configure TypeSafe Jev System One API access and semantic prompts.</p>
+        </header>
+
+
+        <!-- 1. TypeSafe Jev Configuration -->
+        <div class="card provider-card">
+          <div class="provider-header">
+            <div>
+              <h3>TypeSafe Jev (System One)</h3>
+              <p class="subtitle">Ultra-fast calibrated decision model for classifications (70-300ms)</p>
+            </div>
+            <span class="provider-tag primary">Active Engine</span>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="opt-jev-key">TypeSafe API Key</label>
+              <input type="password" id="opt-jev-key" class="text-input" placeholder="Bearer ts_...">
+            </div>
+            <div class="form-group">
+              <label for="opt-jev-model">Model ID</label>
+              <input type="text" id="opt-jev-model" class="text-input" value="jev-latest">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="opt-jev-endpoint">API Endpoint</label>
+            <input type="text" id="opt-jev-endpoint" class="text-input" value="https://api.typesafe.ai/v1/systemone">
+          </div>
+        </div>
+        <!-- 4. Jev Decision Prompt Engineering -->
+        <div class="card">
+          <div class="provider-header">
+            <div>
+              <h3>🧠 Jev / AI Decision Prompt & Criteria Customization</h3>
+              <p class="subtitle">Customize the exact semantic instructions and classification rubrics sent to Jev</p>
+            </div>
+            <button type="button" id="btn-reset-prompts" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">Reset to Defaults</button>
+          </div>
+          <div class="form-group">
+            <label for="opt-prompt-instructions">Main Question Instructions (Evaluated on every post)</label>
+            <textarea id="opt-prompt-instructions" class="text-area" rows="3"></textarea>
+            <p class="help-text">Guides Jev to recognize national parties, localized suffixes (-'li/-li), ministries, and public appointments across all languages without hardcoding.</p>
+          </div>
+          <div class="form-group">
+            <label for="opt-prompt-politics">Politics Decision Criteria (Rubric given to Jev for 'politics')</label>
+            <textarea id="opt-prompt-politics" class="text-area" rows="3"></textarea>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="opt-prompt-soccer">Soccer Decision Criteria</label>
+              <textarea id="opt-prompt-soccer" class="text-area" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="opt-prompt-finance">Finance Decision Criteria</label>
+              <textarea id="opt-prompt-finance" class="text-area" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: Topics & Sensitivity -->
+      <section id="tab-rules" class="tab-panel">
+        <header class="panel-header">
+          <h2>Topics, Custom Keywords & Sensitivity</h2>
+          <p>Customize detection thresholds and which annoying topics trigger filtering.</p>
+        </header>
+
+        <div class="card">
+          <h3>Active Detection Categories</h3>
+          <div class="checkbox-group-vertical">
+            <label class="checkbox-row">
+              <input type="checkbox" id="rule-cat-soccer">
+              <div class="check-text">
+                <strong>⚽ Football / Soccer</strong>
+                <span>Matches, Premier League, Champions League, Barca/Real, player transfers, fantasy league.</span>
+              </div>
+            </label>
+            <label class="checkbox-row">
+              <input type="checkbox" id="rule-cat-finance">
+              <div class="check-text">
+                <strong>📈 Finance / Crypto</strong>
+                <span>Bitcoin, memecoins, trading signals, day traders, passive income gurus, stock advice.</span>
+              </div>
+            </label>
+            <label class="checkbox-row">
+              <input type="checkbox" id="rule-cat-politics">
+              <div class="check-text">
+                <strong>🏛️ Politics & National Parties</strong>
+                <span>National party politics (AKP, CHP, MHP, DEM, Tories, etc.), ministers, state bureaucracy, elections, and political ragebait.</span>
+              </div>
+            </label>
+            <label class="checkbox-row">
+              <input type="checkbox" id="rule-cat-custom">
+              <div class="check-text">
+                <strong>⚙️ Custom Topics & Keywords</strong>
+                <span>Filter custom phrases and subcultures defined below.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Custom Keywords -->
+        <div class="card">
+          <h3>Custom Blocked Keywords</h3>
+          <p class="subtitle">Comma-separated terms or phrases to block (e.g. <em>dropshipping, astrology, nft</em>)</p>
+          <textarea id="opt-custom-keywords" class="text-area" rows="3" placeholder="dropshipping, solana, ai influencer, astrolgy"></textarea>
+        </div>
+
+        <!-- Sensitivity Slider -->
+        <div class="card">
+          <div class="slider-header">
+            <h3>Decision Confidence Threshold</h3>
+            <span id="sensitivity-value" class="slider-val">0.60 (Balanced)</span>
+          </div>
+          <input type="range" id="opt-sensitivity" min="0.2" max="0.95" step="0.05" value="0.6">
+          <div class="slider-labels">
+            <span>Aggressive (0.2)</span>
+            <span>Balanced (0.6)</span>
+            <span>Strict / Conservative (0.95)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: Allowlist & Blocklist -->
+      <section id="tab-lists" class="tab-panel">
+        <header class="panel-header">
+          <h2>User Lists Management</h2>
+          <p>Explicitly whitelist friends or permanently blacklist persistent spam accounts.</p>
+        </header>
+
+        <div class="grid-2">
+          <!-- Allowlist -->
+          <div class="card">
+            <h3>🛡️ Whitelist / Allowlist</h3>
+            <p class="subtitle">These users will NEVER be hidden or collapsed.</p>
+            <div class="add-bar">
+              <input type="text" id="new-allow-input" placeholder="@handle to allow" class="text-input">
+              <button id="btn-add-allow" class="btn btn-secondary">Add</button>
+            </div>
+            <div class="list-container" id="allowlist-box"></div>
+          </div>
+
+          <!-- Blocklist -->
+          <div class="card">
+            <h3>⛔ Blacklist / Blocklist</h3>
+            <p class="subtitle">These users will ALWAYS be hidden immediately.</p>
+            <div class="add-bar">
+              <input type="text" id="new-block-input" placeholder="@handle to block" class="text-input">
+              <button id="btn-add-block" class="btn btn-secondary">Add</button>
+            </div>
+            <div class="list-container" id="blocklist-box"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: Cached Decisions -->
+      <section id="tab-cache" class="tab-panel">
+        <header class="panel-header">
+          <div class="header-split">
+            <div>
+              <h2>Cached User Decisions</h2>
+              <p>Users classified by Jev, Clef, Luna, or Local Heuristics stored locally to save API requests.</p>
+            </div>
+            <button id="btn-clear-cache" class="btn btn-danger">Clear All Cache</button>
+          </div>
+        </header>
+
+        <div class="card">
+          <div class="table-search-bar">
+            <input type="text" id="cache-search" placeholder="Search by @handle, category, or reason..." class="text-input">
+          </div>
+          <div class="table-responsive">
+            <table class="cache-table">
+              <thead>
+                <tr>
+                  <th>Handle</th>
+                  <th>Status</th>
+                  <th>Category</th>
+                  <th>Reason</th>
+                  <th>Confidence</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="cache-table-body">
+                <tr><td colspan="6" class="text-center">Loading cache...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: Backup & Restore -->
+      <section id="tab-backup" class="tab-panel">
+        <header class="panel-header">
+          <h2>Backup & Restore</h2>
+          <p>Export your configuration, custom rules, and lists or transfer them to another device.</p>
+        </header>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Export Configuration</h3>
+            <p class="subtitle">Download a JSON snapshot containing your settings, lists, and cache.</p>
+            <button id="btn-export-json" class="btn btn-primary" style="margin-top: 10px;">Download Backup (.json)</button>
+          </div>
+
+          <div class="card">
+            <h3>Import Configuration</h3>
+            <p class="subtitle">Restore configuration from a previously exported JSON backup file.</p>
+            <input type="file" id="import-file-input" accept=".json" style="margin-top: 10px;">
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="options.js" type="module"></script>
+</body>
+</html>

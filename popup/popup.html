@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hide The Annoying</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <img src="../icons/icon-48.png" alt="Logo" class="logo">
+        <div>
+          <h1 class="title">Hide The Annoying</h1>
+          <span class="subtitle">X / Twitter AI Content Filter</span>
+        </div>
+      </div>
+      <label class="switch" title="Toggle Extension">
+        <input type="checkbox" id="master-toggle">
+        <span class="slider"></span>
+      </label>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Decision Engine (TypeSafe Jev) -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title">TypeSafe Jev Engine</span>
+          <span class="badge" id="provider-status">Ready</span>
+        </div>
+        <div class="form-group api-key-group" id="api-key-container">
+          <label for="api-key-input" class="field-label" id="api-key-label">TypeSafe Jev API Key</label>
+          <div class="input-with-button">
+            <input type="password" id="api-key-input" placeholder="Enter Jev API Key" class="text-input">
+            <button type="button" id="toggle-key-visibility" class="btn-icon" title="Toggle Visibility">👁️</button>
+          </div>
+          <p class="field-help" id="api-key-help">Powers real-time System One AI decisions on X/Twitter. API key is required.</p>
+        </div>
+      </section>
+
+      <!-- Filter Treatment Mode -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title">Filtering Mode</span>
+        </div>
+        <div class="radio-pill-group">
+          <label class="pill-option">
+            <input type="radio" name="filterMode" value="collapse">
+            <span>🛡️ Soft Collapse</span>
+          </label>
+          <label class="pill-option">
+            <input type="radio" name="filterMode" value="hide">
+            <span>🚫 Hide Totally</span>
+          </label>
+          <label class="pill-option">
+            <input type="radio" name="filterMode" value="badge">
+            <span>🏷️ Badge Only</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Categories to Filter -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title">Annoying Topics</span>
+        </div>
+        <div class="checkbox-list">
+          <label class="checkbox-item">
+            <input type="checkbox" id="cat-soccer">
+            <span>⚽ <strong>Football / Soccer</strong> (transfers, matches, clubs)</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="cat-finance">
+            <span>📈 <strong>Finance / Crypto</strong> (trading, crypto bros, stocks)</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="cat-politics">
+            <span>🏛️ <strong>Politics & Parties</strong> (AKP, CHP, elections, ministers, partisanship)</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="cat-custom">
+            <span>⚙️ <strong>Custom Keywords</strong></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Stats -->
+      <section class="card stats-card">
+        <div class="stat-item">
+          <span class="stat-value" id="stat-scanned">0</span>
+          <span class="stat-label">Scanned</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value highlight" id="stat-filtered">0</span>
+          <span class="stat-label">Filtered</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-cache">0</span>
+          <span class="stat-label">Cache Hits <button type="button" id="btn-quick-clear-cache" style="background:none;border:none;color:var(--primary-color);cursor:pointer;font-size:10px;text-decoration:underline;padding:0;margin-left:2px;" title="Clear cached decisions">Clear</button></span>
+        </div>
+      </section>
+
+      <!-- Quick Test Sandbox -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title">Quick Test Sandbox</span>
+        </div>
+        <div class="form-group">
+          <input type="text" id="test-handle" class="text-input" placeholder="@handle to test (e.g. @cryptoking)">
+          <textarea id="test-text" class="text-input" rows="2" placeholder="Sample tweet text (optional)"></textarea>
+          <button type="button" id="btn-run-test" class="btn btn-primary" style="margin-top: 8px;">Run Decision Test</button>
+        </div>
+        <div id="test-result" class="test-result-box" style="display: none;"></div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <button type="button" id="btn-open-options" class="btn-link">⚙️ Advanced Options & Allowlist</button>
+      <span class="version-tag">v1.0.0</span>
+    </footer>
+  </div>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html>
