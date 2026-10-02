@@ -41,13 +41,20 @@
     // Initial scan
     scanPage();
 
-    // Observe DOM changes (timeline updates, virtual scroll, infinite load)
+    // Observe DOM changes (timeline updates, virtual scroll, infinite load, and React class overrides)
     const observer = new MutationObserver((mutations) => {
       let shouldScan = false;
       for (const m of mutations) {
-        if (m.addedNodes.length > 0) {
+        if (m.type === 'childList' && m.addedNodes.length > 0) {
           shouldScan = true;
-          break;
+        } else if (m.type === 'attributes' && m.attributeName === 'class') {
+          // If Twitter's React wiped the collapsed class on hover or re-render, restore it immediately
+          const target = m.target;
+          if (target && target.dataset && target.dataset.htaCollapsed === 'true') {
+            if (!target.classList.contains('hta-tweet-collapsed')) {
+              target.classList.add('hta-tweet-collapsed');
+            }
+          }
         }
       }
       if (shouldScan) {
@@ -57,7 +64,9 @@
 
     observer.observe(document.body, {
       childList: true,
-      subtree: true
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class']
     });
 
     // Check profile page if applicable
@@ -261,15 +270,18 @@
     if (mode === 'hide') {
       article.classList.add('hta-hard-hidden');
       article.classList.remove('hta-tweet-collapsed');
+      delete article.dataset.htaCollapsed;
       removeBanner(article);
     } else if (mode === 'badge') {
       article.classList.remove('hta-hard-hidden', 'hta-tweet-collapsed');
+      delete article.dataset.htaCollapsed;
       removeBanner(article);
       injectInlineBadge(article, cat, meta, decision.reason);
     } else {
       // Default: Soft Collapse
       article.classList.remove('hta-hard-hidden');
       article.classList.add('hta-tweet-collapsed');
+      article.dataset.htaCollapsed = 'true';
       injectCollapsedBanner(article, tweetInfo.handle, cat, meta, decision.reason);
     }
   }
@@ -282,6 +294,14 @@
     if (!banner) {
       banner = document.createElement('div');
       banner.className = 'hta-collapsed-banner';
+
+      // Prevent hover and pointer events on banner from bubbling up to Twitter's native listeners
+      ['mouseenter', 'mouseover', 'mousemove', 'pointerenter', 'pointerover'].forEach(eventType => {
+        banner.addEventListener(eventType, (e) => {
+          e.stopPropagation();
+        });
+      });
+
       article.prepend(banner);
     }
 
@@ -303,12 +323,14 @@
     toggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       e.preventDefault();
-      const isCollapsed = article.classList.contains('hta-tweet-collapsed');
+      const isCollapsed = article.dataset.htaCollapsed === 'true' || article.classList.contains('hta-tweet-collapsed');
       if (isCollapsed) {
         article.classList.remove('hta-tweet-collapsed');
+        delete article.dataset.htaCollapsed;
         toggleBtn.textContent = 'Hide';
       } else {
         article.classList.add('hta-tweet-collapsed');
+        article.dataset.htaCollapsed = 'true';
         toggleBtn.textContent = 'Show';
       }
     });
@@ -360,6 +382,7 @@
 
   function removeFiltersFromTweet(article) {
     article.classList.remove('hta-hard-hidden', 'hta-tweet-collapsed');
+    delete article.dataset.htaCollapsed;
     removeBanner(article);
     const badge = article.querySelector('.hta-inline-badge');
     if (badge) badge.remove();
