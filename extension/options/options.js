@@ -289,6 +289,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       .map(k => k.trim())
       .filter(Boolean);
 
+    const targetEndpoint = optJevEndpoint.value.trim();
+    if (targetEndpoint && chrome.permissions) {
+      try {
+        const url = new URL(targetEndpoint);
+        const originPattern = `${url.origin}/*`;
+        const hasPerm = await chrome.permissions.contains({ origins: [originPattern] });
+        if (!hasPerm) {
+          const granted = await chrome.permissions.request({ origins: [originPattern] });
+          if (!granted) {
+            console.warn('[HideTheAnnoying] Host permission declined for:', originPattern);
+          }
+        }
+      } catch (err) {
+        console.warn('[HideTheAnnoying] Invalid endpoint URL:', err);
+      }
+    }
+
     const payload = {
       activeProvider: 'jev',
       sensitivity: parseFloat(optSensitivity.value),

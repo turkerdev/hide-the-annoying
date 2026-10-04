@@ -151,6 +151,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    // Ensure host permission if custom endpoint
+    const endpoint = settings?.endpoints?.jev;
+    if (endpoint && chrome.permissions) {
+      try {
+        const url = new URL(endpoint);
+        const originPattern = `${url.origin}/*`;
+        const hasPerm = await chrome.permissions.contains({ origins: [originPattern] });
+        if (!hasPerm) {
+          await chrome.permissions.request({ origins: [originPattern] });
+        }
+      } catch (_) {}
+    }
+
     btnRunTest.disabled = true;
     btnRunTest.textContent = 'Evaluating...';
     testResult.style.display = 'block';

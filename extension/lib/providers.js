@@ -69,35 +69,48 @@ export function buildQuestionsPayload(settings) {
 
 /**
  * Universally parses Jev typed decision model responses
- * Robust across varying response envelopes
+ * Robust across varying response envelopes (TypeSafe Jev, Cloudflare Workers AI, custom proxies)
  */
 export function parseDecisionResponse(data, defaultChoice = 'clean') {
   if (!data || typeof data !== 'object') {
     return { choice: defaultChoice, confidence: 1.0 };
   }
 
+  // Universal envelope unwrapping (Cloudflare Workers AI, custom proxies)
+  let source = data;
+  if (data.result && typeof data.result === 'object' && !Array.isArray(data.result)) {
+    if (data.result.category !== undefined || 
+        data.result.decision !== undefined || 
+        data.result.choice !== undefined || 
+        data.result.topic !== undefined || 
+        data.result.answers !== undefined || 
+        data.result.selected !== undefined) {
+      source = data.result;
+    }
+  }
+
   // Find target question answer in response
-  let answer = data.category ?? 
-               data.decision ?? 
-               data.choice ?? 
-               data.topic ?? 
-               data.result ?? 
-               data.answers?.category ?? 
-               data.answers?.decision ?? 
-               data.answers?.choice ?? 
-               data.answers?.topic;
+  let answer = source.category ?? 
+               source.decision ?? 
+               source.choice ?? 
+               source.topic ?? 
+               source.answers?.category ?? 
+               source.answers?.decision ?? 
+               source.answers?.choice ?? 
+               source.answers?.topic ??
+               source.result;
 
   // Fallback: check inside answers map or inspect first non-metadata key
-  if (!answer && data.answers && typeof data.answers === 'object') {
-    const values = Object.values(data.answers);
+  if (!answer && source.answers && typeof source.answers === 'object') {
+    const values = Object.values(source.answers);
     if (values.length > 0) answer = values[0];
   }
   if (!answer) {
-    const candidateKeys = Object.keys(data).filter(
-      k => !['id', 'model', 'created', 'usage', 'object', 'status', 'provider'].includes(k)
+    const candidateKeys = Object.keys(source).filter(
+      k => !['id', 'model', 'created', 'usage', 'object', 'status', 'provider', 'success', 'errors', 'messages'].includes(k)
     );
     if (candidateKeys.length > 0) {
-      answer = data[candidateKeys[0]];
+      answer = source[candidateKeys[0]];
     }
   }
 
@@ -115,6 +128,7 @@ export function parseDecisionResponse(data, defaultChoice = 'clean') {
                 answer.value ?? 
                 answer.result ?? 
                 answer.label ?? 
+                answer.category ??
                 defaultChoice;
 
     if (typeof answer.confidence === 'number') {
@@ -126,7 +140,9 @@ export function parseDecisionResponse(data, defaultChoice = 'clean') {
     }
   }
 
-  if (typeof data.confidence === 'number' && confidence === 1.0) {
+  if (typeof source.confidence === 'number' && confidence === 1.0) {
+    confidence = source.confidence;
+  } else if (typeof data.confidence === 'number' && confidence === 1.0) {
     confidence = data.confidence;
   }
 
@@ -153,7 +169,7 @@ export function parseDecisionResponse(data, defaultChoice = 'clean') {
 /**
  * Converts parsed decision output into a standardized classification result object
  */
-export function formatClassificationResult(rawResponse, settings, providerId = 'jev', providerDisplayName = 'TypeSafe Jev') {
+export function formatClassificationResult(rawResponse, settings, providerId = 'jev', providerDisplayName = 'Decision Model') {
   const { choice, confidence } = parseDecisionResponse(rawResponse);
 
   const categoryMatchesFilter = (
@@ -187,8 +203,8 @@ export function formatClassificationResult(rawResponse, settings, providerId = '
 }
 
 /**
- * TypeSafe Jev Provider (Primary & Sole AI Engine)
- * Uses Jev System One decision model endpoint driven by customizable semantic prompts
+ * TypeSafe Jev Provider (Universal Decision Engine)
+ * Directly configurable with any Jev-compatible decision API (TypeSafe, Cloudflare Clef, self-hosted)
  */
 export class TypeSafeJevProvider extends BaseProvider {
   constructor() {
@@ -196,15 +212,22 @@ export class TypeSafeJevProvider extends BaseProvider {
   }
 
   async classify(context, settings) {
-    const apiKey = settings.apiKeys?.jev;
-    const endpoint = settings.endpoints?.jev || 'https://api.typesafe.ai/v1/systemone';
-    const model = settings.models?.jev || 'jev-latest';
+    const rawKey = settings.apiKeys?.jev || '';
+    const apiKey = rawKey.trim().replace(/^Bearer\s+/i, '');
+    let endpoint = (settings.endpoints?.jev || 'https://api.typesafe.ai/v1/systemone').trim();
+    let model = (settings.models?.jev || 'jev-latest').trim();
+
+    // If user points to Cloudflare Workers AI, ensure valid /model in JSON body
+    if (endpoint.includes('cloudflare.com')) {
+      if (model.toLowerCase().includes('flash')) model = 'clef-flash';
+      else if (model.toLowerCase().includes('clef')) model = 'clef';
+    }
 
     if (!apiKey) {
       return {
         isAnnoying: false,
         category: 'clean',
-        reason: 'TypeSafe Jev API key required. Enter key in extension popup.',
+        reason: 'API key required. Enter key in extension popup or options.',
         confidence: 0,
         provider: 'jev'
       };
@@ -230,25 +253,40 @@ export class TypeSafeJevProvider extends BaseProvider {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.warn(`[HideTheAnnoying] Jev API error (${response.status}):`, errorText);
+        let errorDetail = '';
+        try {
+          const errJson = await response.json();
+          if (errJson.errors && Array.isArray(errJson.errors) && errJson.errors.length > 0) {
+            errorDetail = errJson.errors.map(e => e.message || JSON.stringify(e)).join(', ');
+          } else if (errJson.message) {
+            errorDetail = errJson.message;
+          }
+        } catch (_) {
+          errorDetail = await response.text().catch(() => '');
+        }
+
+        console.warn(`[HideTheAnnoying] API error (${response.status}):`, errorDetail);
         return {
           isAnnoying: false,
           category: 'clean',
-          reason: `Jev API error (${response.status})`,
+          reason: `API error (${response.status})${errorDetail ? ': ' + errorDetail : ''}`,
           confidence: 0,
           provider: 'jev'
         };
       }
 
       const data = await response.json();
-      return formatClassificationResult(data, settings, 'jev', 'TypeSafe Jev');
+      return formatClassificationResult(data, settings, 'jev', 'Decision Model');
     } catch (err) {
-      console.error('[HideTheAnnoying] Fetch error with Jev API:', err);
+      console.error('[HideTheAnnoying] Fetch error with Decision API:', err);
+      let hint = '';
+      if (err.message && err.message.toLowerCase().includes('failed to fetch')) {
+        hint = ' (Check endpoint URL & ensure extension is reloaded in chrome://extensions)';
+      }
       return {
         isAnnoying: false,
         category: 'clean',
-        reason: `Jev network error: ${err.message}`,
+        reason: `Network error: ${err.message}${hint}`,
         confidence: 0,
         provider: 'jev'
       };
