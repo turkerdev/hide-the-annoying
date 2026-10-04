@@ -1,6 +1,8 @@
 # Hide The Annoying — X / Twitter AI Content Filter
 
-A modern Chrome Extension (Manifest V3) that detects and filters out annoying X/Twitter users and posts — especially those talking about **soccer/football**, **crypto/finance**, or **toxic politics** — using the **TypeSafe Jev** System One decision model.
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Available-blue?logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/detail/hide-the-annoying/aapbeafdimmlobengijdpahhldmhnfkl)
+
+A modern, 100% open-source Chrome Extension (Manifest V3) that detects and filters out annoying X/Twitter users and posts — especially those talking about **soccer/football**, **crypto/finance**, or **toxic politics** — using fast decision models like **TypeSafe Jev** and **Cloudflare Clef**.
 
 ---
 
@@ -10,8 +12,10 @@ A modern Chrome Extension (Manifest V3) that detects and filters out annoying X/
   - **Soft Collapse (Default)**: Replaces annoying tweets with an aesthetic, non-disruptive banner showing the detected category and reason, complete with a single-click **"Show"** toggle and an **"Always Allow"** button.
   - **Complete Hide**: Removes annoying tweets entirely from view.
   - **Inline Badges**: Keeps tweets visible while tagging accounts with high-contrast badges (e.g. `⚽ Football`, `📈 Finance`, `🏛️ Politics`).
-- 🤖 **TypeSafe Jev AI Engine**:
-  - **TypeSafe Jev (System One)**: Uses the ultra-fast System One decision model (`jev-latest`) on `https://api.typesafe.ai/v1/systemone` using typed structured choice queries (~70–300ms) for 100% semantic, AI-driven categorization.
+- 🤖 **Fast Decision Model Engines**:
+  - **TypeSafe Jev**: Uses the ultra-fast System One decision model (`jev-latest`) on `https://api.typesafe.ai/v1/systemone` using typed structured choice queries (~70–300ms) for 100% semantic, AI-driven categorization.
+  - **Cloudflare Workers AI (Clef)**: Seamless support for Cloudflare's Clef decision models via Workers AI.
+  - **Custom Endpoints**: Bring any self-hosted or private Jev-compatible decision API.
 - ⚡ **High-Speed Caching**:
   - Remembers classifications for tweets in local storage so that browsing remains lightning-fast and API requests are minimized.
 - 📋 **Allowlist & Blocklist**:
@@ -24,9 +28,13 @@ A modern Chrome Extension (Manifest V3) that detects and filters out annoying X/
 
 ---
 
-## 🚀 Installation (Load Unpacked in Chrome)
+## 🚀 Installation
 
-1. Clone or download this repository:
+### Option 1: Chrome Web Store (Recommended)
+Install directly from the official **[Chrome Web Store](https://chromewebstore.google.com/detail/hide-the-annoying/aapbeafdimmlobengijdpahhldmhnfkl)** with one click.
+
+### Option 2: Load Unpacked (Development)
+1. Clone this repository:
    ```bash
    git clone https://github.com/turkerdev/hide-the-annoying.git
    ```
