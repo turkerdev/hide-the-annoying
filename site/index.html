@@ -747,6 +747,10 @@
       grid-column: span 2;
     }
 
+    .bento-item.col-span-3 {
+      grid-column: span 3;
+    }
+
     .bento-icon {
       width: 44px;
       height: 44px;
@@ -1146,7 +1150,8 @@
     @media (max-width: 900px) {
       .hero-title { font-size: 38px; }
       .bento-grid { grid-template-columns: 1fr; }
-      .bento-item.col-span-2 { grid-column: span 1; }
+      .bento-item.col-span-2,
+      .bento-item.col-span-3 { grid-column: span 1; }
       .steps-grid { grid-template-columns: 1fr; }
       .nav-links { display: none; }
     }
@@ -1214,10 +1219,17 @@
           <li><a href="#install">Install</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener">Open Source</a></li>
         </ul>
       </nav>
 
       <div class="nav-actions">
+        <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" aria-label="GitHub Repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          Star on GitHub
+        </a>
         <a href="https://chromewebstore.google.com/detail/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/>
@@ -1241,9 +1253,9 @@
         <div class="hero-content">
           <div class="hero-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2zm0-6h2v4h-2z"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
             </svg>
-            <span>Manifest V3 · TypeSafe Jev AI Engine</span>
+            <span>100% Free & Open Source · Manifest V3</span>
           </div>
 
           <h1 class="hero-title">
@@ -1253,7 +1265,7 @@
 
           <p class="hero-desc">
             Tired of political ragebait, soccer flame wars, and crypto shilling cluttering your timeline?
-            <strong>Hide The Annoying</strong> uses high-speed semantic AI to collapse noise into sleek 40px summary bars.
+            <strong>Hide The Annoying</strong> is a 100% free and open-source Chrome extension using high-speed decision models to collapse noise into sleek 40px summary bars.
           </p>
 
           <div class="hero-cta">
@@ -1267,27 +1279,30 @@
               </svg>
               Add to Chrome — It's Free
             </a>
-            <a href="#features" class="btn btn-secondary btn-lg">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <polyline points="19 12 12 19 5 12"/>
+            <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-secondary btn-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
               </svg>
-              Explore Features
+              View on GitHub
             </a>
           </div>
 
           <div class="hero-meta">
             <div class="hero-meta-item">
+              <span>⭐</span>
+              <span><strong>100% Open Source</strong> (MIT)</span>
+            </div>
+            <div class="hero-meta-item">
               <span>⚡</span>
-              <span><strong>70ms</strong> Semantic Detection (Jev AI)</span>
+              <span><strong>70ms</strong> Semantic Detection</span>
             </div>
             <div class="hero-meta-item">
               <span>🛡️</span>
-              <span><strong>100% Client-Side Privacy</strong> — Zero telemetry</span>
+              <span><strong>Client-Side Privacy</strong> — Zero telemetry</span>
             </div>
             <div class="hero-meta-item">
               <span>✨</span>
-              <span>Works on Chrome, Brave, Arc, Edge, Opera</span>
+              <span>Works on Chrome, Brave, Arc, Edge</span>
             </div>
           </div>
         </div>
@@ -1509,6 +1524,26 @@
             Love following a specific political journalist or sports analyst? Add them to your Allowlist with a single click. Their posts will stay pristine and uncollapsed forever.
           </p>
         </div>
+
+        <!-- Card 6: 100% Open Source -->
+        <div class="bento-item col-span-3" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; background: linear-gradient(135deg, rgba(29, 155, 240, 0.08), rgba(120, 86, 255, 0.08)); border-color: rgba(29, 155, 240, 0.25);">
+          <div style="max-width: 680px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span style="font-size: 20px;">⭐</span>
+              <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-primary); background: rgba(29, 155, 240, 0.15); padding: 2px 8px; border-radius: 9999px;">100% Open Source</span>
+            </div>
+            <h3 class="bento-title" style="margin-bottom: 8px;">Auditable, Transparent, and Community-Driven</h3>
+            <p class="bento-desc" style="margin-bottom: 0;">
+              Every line of code is open source under the MIT license on GitHub. Inspect how decision models classify tweets, verify that zero user data is ever transmitted, or contribute your own features and improvements.
+            </p>
+          </div>
+          <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-secondary" style="border-color: rgba(255, 255, 255, 0.2); white-space: nowrap;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+            </svg>
+            View on GitHub
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -1562,6 +1597,12 @@
               <td>— Native</td>
               <td>⚠️ Legacy MV2 transition issues</td>
               <td class="highlight-col">✅ Clean MV3 with Service Worker</td>
+            </tr>
+            <tr>
+              <td><strong>Open Source & Auditable</strong></td>
+              <td>❌ Proprietary algorithms</td>
+              <td>⚠️ Closed / Telemetry risks</td>
+              <td class="highlight-col">✅ 100% Free & Open Source (MIT)</td>
             </tr>
           </tbody>
         </table>
@@ -1642,6 +1683,16 @@
       <div class="faq-list">
         <div class="faq-item">
           <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Is Hide The Annoying open source and free to use?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Yes! Hide The Annoying is 100% free and open source under the MIT license. You can inspect the entire codebase, audit how decision models classify posts, verify our zero-telemetry privacy architecture, or contribute on GitHub at <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" style="color: var(--color-primary); text-decoration: underline;">github.com/turkerdev/hide-the-annoying</a>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
             <span>What is TypeSafe Jev System One?</span>
             <span class="faq-icon">+</span>
           </div>
@@ -1697,17 +1748,25 @@
   <section class="container">
     <div class="cta-banner">
       <h2 class="cta-title">Ready for a Peaceful Timeline?</h2>
-      <p class="cta-desc">Add the extension to your browser today and experience social media without the exhausting toxicity.</p>
-      <a href="https://chromewebstore.google.com/detail/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <circle cx="12" cy="12" r="4"/>
-          <line x1="21.17" y1="8" x2="12" y2="8"/>
-          <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
-          <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
-        </svg>
-        Add to Chrome — Free Extension
-      </a>
+      <p class="cta-desc">Free, transparent, and 100% open source. Add the extension to your browser or inspect the code on GitHub.</p>
+      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+        <a href="https://chromewebstore.google.com/detail/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="4"/>
+            <line x1="21.17" y1="8" x2="12" y2="8"/>
+            <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
+            <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
+          </svg>
+          Add to Chrome — Free Extension
+        </a>
+        <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-secondary btn-lg" style="border-color: rgba(255,255,255,0.2);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          View Source on GitHub
+        </a>
+      </div>
     </div>
   </section>
 
@@ -1715,10 +1774,11 @@
   <footer class="footer">
     <div class="container footer-inner">
       <div>
-        <p><strong>Hide The Annoying</strong> · Built with ❤️ by @turkerdev</p>
+        <p><strong>Hide The Annoying</strong> · 100% Free & Open Source (MIT) · Built with ❤️ by <a href="https://github.com/turkerdev" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline;">@turkerdev</a></p>
       </div>
 
       <div class="footer-links">
+        <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener">GitHub (Source Code)</a>
         <a href="privacy.html">Privacy Policy</a>
         <a href="https://typesafe.ai" target="_blank" rel="noopener">TypeSafe AI</a>
       </div>
