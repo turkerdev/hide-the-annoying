@@ -73,8 +73,8 @@ async function handleMessage(message, sender) {
     }
 
     case 'REMOVE_CACHED_USER': {
-      await removeCachedUser(payload.handle);
-      return { removed: payload.handle };
+      await removeCachedUser(payload.handle, payload.tweetKey);
+      return { removed: payload.handle, tweetKey: payload.tweetKey };
     }
 
     case 'ADD_ALLOWLIST': {
@@ -202,7 +202,10 @@ async function handleCheckUsers(items, sender) {
       providerCalls++;
       if (decision.isAnnoying) newlyHidden++;
 
-      const saved = await setCachedDecision(item.key, decision);
+      const saved = await setCachedDecision(item.key, {
+        ...decision,
+        handle: item.handle
+      });
       results[item.key] = saved;
     } catch (err) {
       console.error(`[HideTheAnnoying] Error classifying item ${item.key}:`, err);

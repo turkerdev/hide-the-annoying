@@ -39,19 +39,19 @@ export function buildQuestionsPayload(settings) {
     "Which category does this content belong to? Determine whether it discusses politics, soccer/football, finance/crypto, or is a normal clean topic.";
 
   const politicsCriteria = settings.prompts?.politicsCriteria ||
-    "National or international politics in any language: political figures mentioned by name, surname, initials or handles (e.g. Erdoğan, İnce, Özdağ, ÖÖ, KK, RTE, @umitozdag, Trump); political parties (e.g. AKP, CHP, MHP, DEM, etc.) and party members/affiliates (e.g. AKP'li, CHP'li); government ministers, state bureaucracy, public appointments (KPSS); political alliances, protocols, elections, and political commentary or satire.";
+    "National, domestic, or international politics in any language: political figures, heads of state, politicians, ministers, candidates, or party leaders mentioned by full name, surname, initials, handles, or nicknames (e.g. Trump, Biden, Harris, Obama, Macron, Starmer, or Turkish political figures like Erdoğan / RTE, Kılıçdaroğlu / KK, Özdağ, İnce / @vekilince, Özel / ÖÖ, İmamoğlu, Yavaş); political parties and member affiliates (e.g. Democrats, Republicans, Tories, Labour, AKP, CHP, MHP, DEM, etc.); government ministries, state bureaucracy, public appointments; legislation, elections, campaigns, voting, protests, and partisan commentary, debate, or political satire.";
 
   const soccerCriteria = settings.prompts?.soccerCriteria ||
     "Soccer, football, matches, transfers, clubs, leagues, tournaments, or players.";
 
   const financeCriteria = settings.prompts?.financeCriteria ||
-    "Finance: credit cards, bank loans, debt, interest, cryptocurrency, Bitcoin, buying or selling coins, stock market, NASDAQ, BIST, trading, forex, or financial hustle / get-rich-quick schemes. Explicitly do NOT classify Steam game sales, video game discounts, shopping deals, coupons, or everyday consumer purchases as finance.";
+    "Finance: credit cards, bank loans, debt, interest, cryptocurrency, Bitcoin, altcoins, memecoins, buying or selling crypto tokens or coins, stock market, NASDAQ, Wall Street, trading, forex, or financial hustle / get-rich-quick schemes. Explicitly do NOT classify AI/LLM tokens (such as LLM input/output tokens, API context window limits, token usage or exhaustion), AI agents, software development, coding, tech projects, Steam game sales, video game discounts, shopping deals, coupons, or everyday consumer purchases as finance.";
 
   const criteria = {
     politics: politicsCriteria,
     soccer: soccerCriteria,
     finance: financeCriteria,
-    clean: "Normal non-political, non-soccer, non-finance topic (personal updates, everyday life, gaming, Steam sales and game discounts, shopping deals, science, technology, humor)."
+    clean: "Normal non-political, non-soccer, non-finance topic (personal updates, everyday life, artificial intelligence, AI agents, LLM input/output tokens or API token usage, software engineering, programming, coding, apps, gaming, Steam sales and game discounts, shopping deals, science, technology, humor)."
   };
 
   if (settings.categories?.custom && Array.isArray(settings.customKeywords) && settings.customKeywords.length > 0) {

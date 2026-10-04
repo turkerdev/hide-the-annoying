@@ -240,13 +240,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     cacheTableBody.innerHTML = '';
-    filtered.forEach(([handle, data]) => {
+    filtered.forEach(([key, data]) => {
       const tr = document.createElement('tr');
       const isAnnoying = Boolean(data.isAnnoying);
       const confPercent = Math.round((data.confidence || 0) * 100);
+      const displayHandle = data.handle || key;
 
       tr.innerHTML = `
-        <td><strong>@${escapeHtml(handle)}</strong></td>
+        <td><strong>@${escapeHtml(displayHandle)}</strong></td>
         <td><span class="badge-tag ${isAnnoying ? 'annoying' : 'clean'}">${isAnnoying ? 'Filtered' : 'Clean'}</span></td>
         <td>${escapeHtml(data.category || 'N/A')}</td>
         <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(data.reason || '')}">${escapeHtml(data.reason || 'N/A')}</td>
@@ -257,9 +258,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       tr.querySelector('.remove-cache-btn').addEventListener('click', async () => {
         await chrome.runtime.sendMessage({
           action: 'REMOVE_CACHED_USER',
-          payload: { handle }
+          payload: { handle: displayHandle, tweetKey: key }
         });
-        delete userCacheData[handle];
+        delete userCacheData[key];
         renderCacheTable(userCacheData, cacheSearch.value);
       });
 
@@ -341,9 +342,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnResetPrompts.addEventListener('click', () => {
     if (!confirm('Reset all Jev prompts to default instructions?')) return;
     optPromptInstructions.value = "Which category does this content belong to? Determine whether it discusses politics, soccer/football, finance/crypto, or is a normal clean topic.";
-    optPromptPolitics.value = "National or international politics in any language: political figures mentioned by name, surname, initials or handles (e.g. Erdoğan, İnce, Özdağ, ÖÖ, KK, RTE, @umitozdag, Trump); political parties (e.g. AKP, CHP, MHP, DEM, etc.) and party members/affiliates (e.g. AKP'li, CHP'li); government ministers, state bureaucracy, public appointments (KPSS); political alliances, protocols, elections, and political commentary or satire.";
+    optPromptPolitics.value = "National, domestic, or international politics in any language: political figures, heads of state, politicians, ministers, candidates, or party leaders mentioned by full name, surname, initials, handles, or nicknames (e.g. Trump, Biden, Harris, Obama, Macron, Starmer, or Turkish political figures like Erdoğan / RTE, Kılıçdaroğlu / KK, Özdağ, İnce / @vekilince, Özel / ÖÖ, İmamoğlu, Yavaş); political parties and member affiliates (e.g. Democrats, Republicans, Tories, Labour, AKP, CHP, MHP, DEM, etc.); government ministries, state bureaucracy, public appointments; legislation, elections, campaigns, voting, protests, and partisan commentary, debate, or political satire.";
     optPromptSoccer.value = "Soccer, football, matches, transfers, clubs, leagues, tournaments, or players.";
-    optPromptFinance.value = "Finance: credit cards, bank loans, debt, interest, cryptocurrency, Bitcoin, buying or selling coins, stock market, NASDAQ, BIST, trading, forex, or financial hustle / get-rich-quick schemes. Explicitly do NOT classify Steam game sales, video game discounts, shopping deals, coupons, or everyday consumer purchases as finance.";
+    optPromptFinance.value = "Finance: credit cards, bank loans, debt, interest, cryptocurrency, Bitcoin, altcoins, memecoins, buying or selling crypto tokens or coins, stock market, NASDAQ, Wall Street, trading, forex, or financial hustle / get-rich-quick schemes. Explicitly do NOT classify AI/LLM tokens (such as LLM input/output tokens, API context window limits, token usage or exhaustion), AI agents, software development, coding, tech projects, Steam game sales, video game discounts, shopping deals, coupons, or everyday consumer purchases as finance.";
   });
 
   // Backup & Restore

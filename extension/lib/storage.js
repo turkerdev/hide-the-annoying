@@ -27,9 +27,9 @@ export const DEFAULT_SETTINGS = {
   },
   prompts: {
     customInstructions: "Which category does this content belong to? Determine whether it discusses politics, soccer/football, finance/crypto, or is a normal clean topic.",
-    politicsCriteria: "National or international politics in any language: political figures mentioned by name, surname, initials or handles (e.g. Erdoğan, İnce, Özdağ, ÖÖ, KK, RTE, @umitozdag, Trump); political parties (e.g. AKP, CHP, MHP, DEM, etc.) and party members/affiliates (e.g. AKP'li, CHP'li); government ministers, state bureaucracy, public appointments (KPSS); political alliances, protocols, elections, and political commentary or satire.",
+    politicsCriteria: "National, domestic, or international politics in any language: political figures, heads of state, politicians, ministers, candidates, or party leaders mentioned by full name, surname, initials, handles, or nicknames (e.g. Trump, Biden, Harris, Obama, Macron, Starmer, or Turkish political figures like Erdoğan / RTE, Kılıçdaroğlu / KK, Özdağ, İnce / @vekilince, Özel / ÖÖ, İmamoğlu, Yavaş); political parties and member affiliates (e.g. Democrats, Republicans, Tories, Labour, AKP, CHP, MHP, DEM, etc.); government ministries, state bureaucracy, public appointments; legislation, elections, campaigns, voting, protests, and partisan commentary, debate, or political satire.",
     soccerCriteria: "Soccer, football, matches, transfers, clubs, leagues, tournaments, or players.",
-    financeCriteria: "Finance: credit cards, bank loans, debt, interest, cryptocurrency, Bitcoin, buying or selling coins, stock market, NASDAQ, BIST, trading, forex, or financial hustle / get-rich-quick schemes. Explicitly do NOT classify Steam game sales, video game discounts, shopping deals, coupons, or everyday consumer purchases as finance."
+    financeCriteria: "Finance: credit cards, bank loans, debt, interest, cryptocurrency, Bitcoin, altcoins, memecoins, buying or selling crypto tokens or coins, stock market, NASDAQ, Wall Street, trading, forex, or financial hustle / get-rich-quick schemes. Explicitly do NOT classify AI/LLM tokens (such as LLM input/output tokens, API context window limits, token usage or exhaustion), AI agents, software development, coding, tech projects, Steam game sales, video game discounts, shopping deals, coupons, or everyday consumer purchases as finance."
   },
   allowlist: [], // handles that should never be hidden
   blocklist: []  // handles that should always be hidden
@@ -51,6 +51,21 @@ export async function getSettings() {
     await chrome.storage.local.set({ settings: DEFAULT_SETTINGS });
     return { ...DEFAULT_SETTINGS };
   }
+
+  const prompts = {
+    ...DEFAULT_SETTINGS.prompts,
+    ...(result.settings.prompts || {})
+  };
+
+  // Auto-migrate legacy default finance prompts lacking AI/LLM token disambiguation
+  const oldFinanceDefaults = [
+    "Finance, cryptocurrency, Bitcoin, stock market, trading, forex, or get-rich-quick schemes.",
+    "Finance: credit cards, bank loans, debt, interest, cryptocurrency, Bitcoin, buying or selling tokens/coins, stock market, NASDAQ, Wall Street, trading, forex, or financial hustle / get-rich-quick schemes. Explicitly do NOT classify Steam game sales, video game discounts, shopping deals, coupons, or everyday consumer purchases as finance."
+  ];
+  if (oldFinanceDefaults.includes(prompts.financeCriteria)) {
+    prompts.financeCriteria = DEFAULT_SETTINGS.prompts.financeCriteria;
+  }
+
   return {
     ...DEFAULT_SETTINGS,
     ...result.settings,
@@ -70,10 +85,7 @@ export async function getSettings() {
       ...DEFAULT_SETTINGS.models,
       ...(result.settings.models || {})
     },
-    prompts: {
-      ...DEFAULT_SETTINGS.prompts,
-      ...(result.settings.prompts || {})
-    }
+    prompts
   };
 }
 
@@ -126,18 +138,20 @@ export async function getUserCache() {
 }
 
 /**
- * Saves decision for a user handle into cache
+ * Saves decision for a user handle or tweet item into cache
  */
-export async function setCachedDecision(handle, decision) {
-  const normalized = handle.toLowerCase().replace(/^@/, '');
+export async function setCachedDecision(key, decision) {
+  const normalizedKey = (key || '').toLowerCase().replace(/^@/, '');
   const cache = await getUserCache();
-  cache[normalized] = {
+  const handle = (decision.handle || normalizedKey).toLowerCase().replace(/^@/, '');
+  cache[normalizedKey] = {
     ...decision,
-    handle: normalized,
+    handle,
+    key: normalizedKey,
     timestamp: Date.now()
   };
   await chrome.storage.local.set({ userCache: cache });
-  return cache[normalized];
+  return cache[normalizedKey];
 }
 
 /**
@@ -148,11 +162,22 @@ export async function clearUserCache() {
 }
 
 /**
- * Removes a specific user from cache
+ * Removes a specific user or tweet decision from cache
  */
-export async function removeCachedUser(handle) {
-  const normalized = handle.toLowerCase().replace(/^@/, '');
+export async function removeCachedUser(handle, tweetKey = null) {
+  const normalized = (handle || '').toLowerCase().replace(/^@/, '');
+  const normKey = (tweetKey || '').toLowerCase();
   const cache = await getUserCache();
-  delete cache[normalized];
+
+  for (const [k, v] of Object.entries(cache)) {
+    const entryHandle = (v.handle || '').toLowerCase().replace(/^@/, '');
+    if (k === normalized || (normKey && k === normKey)) {
+      delete cache[k];
+    } else if (normalized && (entryHandle === normalized || k.startsWith(`text_${normalized}_`))) {
+      delete cache[k];
+    }
+  }
+
   await chrome.storage.local.set({ userCache: cache });
+  return cache;
 }

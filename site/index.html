@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hide The Annoying — AI-Powered Content Filter for X / Twitter</title>
+  <meta name="description" content="Clean your X (Twitter) timeline from toxic politics, soccer flamewars, and crypto shilling with intelligent semantic AI. Collapses annoying tweets into sleek, non-intrusive bars.">
+  <meta name="keywords" content="Twitter filter, X timeline cleaner, hide politics twitter, mute crypto twitter, hide soccer twitter, TypeSafe Jev, Chrome extension">
+  
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hide-the-annoying.turker.dev/">
+  <meta property="og:title" content="Hide The Annoying — Reclaim Your Timeline on X">
+  <meta property="og:description" content="Intelligent semantic AI filter for X (Twitter). Soft-collapses politics, soccer arguments, and crypto spam in real-time.">
+  <meta property="og:image" content="icons/icon-128.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Hide The Annoying — Reclaim Your Timeline on X">
+  <meta name="twitter:description" content="Intelligent semantic AI filter for X (Twitter). Soft-collapses politics, soccer arguments, and crypto spam in real-time.">
+  <meta name="twitter:image" content="icons/icon-128.png">
+  
+  <link rel="icon" type="image/png" href="icons/icon-128.png">
+  <link rel="apple-touch-icon" href="icons/icon-128.png">
+
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --bg-card: rgba(18, 24, 38, 0.7);
+      --bg-card-hover: rgba(25, 34, 52, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(29, 155, 240, 0.4);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --color-primary: #1d9bf0;
+      --color-primary-glow: rgba(29, 155, 240, 0.35);
+      --color-politics: #f4212e;
+      --color-soccer: #00ba7c;
+      --color-finance: #ffad1f;
+      --color-custom: #a855f7;
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+      color-scheme: dark;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(29, 155, 240, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 100% 40%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 0% 80%, rgba(0, 186, 124, 0.06) 0%, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-stack);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Layout Containers */
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(7, 9, 14, 0.75);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: border-color 0.2s ease;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 19px;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1d9bf0, #7856ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px var(--color-primary-glow);
+    }
+
+    .brand-icon img {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 9999px;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+
+    .btn-sm {
+      padding: 7px 14px;
+      font-size: 13px;
+    }
+
+    .btn-lg {
+      padding: 14px 28px;
+      font-size: 16px;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: #ffffff;
+      box-shadow: 0 4px 20px rgba(29, 155, 240, 0.4);
+    }
+
+    .btn-primary:hover {
+      background: #1a8cd8;
+      box-shadow: 0 6px 26px rgba(29, 155, 240, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border-subtle);
+      color: var(--text-main);
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    /* Hero Section - Side-by-Side */
+    .hero {
+      padding: 48px 0 64px;
+      position: relative;
+    }
+
+    .hero-container {
+      max-width: 1240px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      align-items: center;
+      gap: 44px;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(29, 155, 240, 0.1);
+      border: 1px solid rgba(29, 155, 240, 0.3);
+      color: #79c0ff;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      animation: pulseGlow 3s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 10px rgba(29, 155, 240, 0.1); }
+      100% { box-shadow: 0 0 24px rgba(29, 155, 240, 0.35); }
+    }
+
+    .hero-title {
+      font-size: 46px;
+      line-height: 1.14;
+      font-weight: 800;
+      letter-spacing: -1.2px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, #ffffff 40%, #1d9bf0 80%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 17px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      font-weight: 400;
+      line-height: 1.55;
+      text-align: left;
+    }
+
+    .hero-cta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13.5px;
+      color: var(--text-dim);
+    }
+
+    .hero-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-meta-item strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .hero-preview {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-tag {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .simulator-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+      overflow: hidden;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .sim-toolbar {
+      padding: 18px 24px;
+      background: rgba(10, 14, 22, 0.8);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .sim-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sim-toggle-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sim-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: #334155;
+      border-radius: 9999px;
+      transition: background 0.25s ease;
+    }
+
+    .sim-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sim-toggle-active .sim-switch {
+      background: var(--color-primary);
+    }
+
+    .sim-toggle-active .sim-switch::after {
+      transform: translateX(20px);
+    }
+
+    .sim-mode-select {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .sim-mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .sim-mode-btn.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+    }
+
+    /* Mock Timeline Feed */
+    .mock-timeline {
+      padding: 0;
+      background: rgba(10, 14, 22, 0.5);
+    }
+
+    .mock-tweet {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .mock-tweet:last-child {
+      border-bottom: none;
+    }
+
+    /* Tweet Content Style */
+    .tweet-body {
+      padding: 16px 20px;
+      display: flex;
+      gap: 14px;
+      transition: opacity 0.2s ease, max-height 0.2s ease;
+    }
+
+    .tweet-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .tweet-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tweet-author {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .tweet-name {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .tweet-handle {
+      color: var(--text-dim);
+    }
+
+    .tweet-text {
+      font-size: 14.5px;
+      color: #e2e8f0;
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+
+    .tweet-actions {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .tweet-action-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Collapsed Banner (Matches extension content.css 1:1) */
+    .hta-collapsed-banner {
+      display: flex;
+      align-items: center !important;
+      justify-content: space-between !important;
+      background: rgba(30, 39, 50, 0.7) !important;
+      backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+      border: 1px solid rgba(244, 33, 46, 0.25) !important;
+      border-left: 4px solid #f4212e !important;
+      border-radius: 10px !important;
+      padding: 0 12px !important;
+      margin: 4px 8px !important;
+      height: 40px !important;
+      min-height: 40px !important;
+      max-height: 40px !important;
+      color: #e7e9ea !important;
+      font-family: var(--font-stack) !important;
+      font-size: 13px !important;
+      line-height: 1.3 !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+      transition: background 0.15s ease, border-color 0.15s ease !important;
+    }
+
+    .hta-collapsed-banner:hover {
+      border-color: rgba(244, 33, 46, 0.5) !important;
+      background: rgba(38, 49, 64, 0.8) !important;
+    }
+
+    .hta-banner-info {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      flex: 1 1 auto !important;
+      overflow: hidden !important;
+    }
+
+    .hta-icon {
+      font-size: 15px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .hta-text {
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+
+    .hta-handle {
+      font-weight: 700 !important;
+      color: #1d9bf0 !important;
+    }
+
+    .hta-category-tag {
+      display: inline-flex !important;
+      align-items: center !important;
+      padding: 2px 7px !important;
+      border-radius: 9999px !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      margin-left: 4px !important;
+    }
+
+    .hta-tag-politics {
+      background: rgba(244, 33, 46, 0.18) !important;
+      color: #f4212e !important;
+      border: 1px solid rgba(244, 33, 46, 0.3) !important;
+    }
+
+    .hta-tag-soccer {
+      background: rgba(0, 186, 124, 0.18) !important;
+      color: #00ba7c !important;
+      border: 1px solid rgba(0, 186, 124, 0.3) !important;
+    }
+
+    .hta-tag-finance {
+      background: rgba(255, 173, 31, 0.18) !important;
+      color: #ffad1f !important;
+      border: 1px solid rgba(255, 173, 31, 0.3) !important;
+    }
+
+    .hta-banner-actions {
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      flex-shrink: 0 !important;
+      margin-left: 10px !important;
+    }
+
+    .hta-btn {
+      background: transparent !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      color: inherit !important;
+      padding: 4px 10px !important;
+      border-radius: 9999px !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      transition: all 0.15s ease !important;
+      outline: none !important;
+    }
+
+    .hta-btn:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      border-color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    .hta-btn-cache:hover {
+      color: #1d9bf0 !important;
+      border-color: #1d9bf0 !important;
+      background: rgba(29, 155, 240, 0.1) !important;
+    }
+
+    .hta-btn-allow:hover {
+      color: #00ba7c !important;
+      border-color: #00ba7c !important;
+      background: rgba(0, 186, 124, 0.1) !important;
+    }
+
+    @media (max-width: 540px) {
+      .hta-btn {
+        padding: 3px 7px !important;
+        font-size: 11px !important;
+      }
+    }
+
+    /* Simulation States */
+    .mock-tweet .hta-collapsed-banner {
+      display: none !important;
+    }
+
+    .mock-tweet.is-collapsed {
+      max-height: 48px !important;
+      overflow: hidden !important;
+      padding: 0 !important;
+    }
+
+    .mock-tweet.is-collapsed .hta-collapsed-banner {
+      display: flex !important;
+    }
+
+    .mock-tweet.is-collapsed .tweet-body {
+      display: none !important;
+    }
+
+    .mock-tweet.is-expanded {
+      max-height: none !important;
+      overflow: visible !important;
+      padding: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+    }
+
+    .mock-tweet.is-expanded .hta-collapsed-banner {
+      display: flex !important;
+      width: calc(100% - 40px) !important;
+      margin: 12px 20px 4px 20px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .mock-tweet.is-expanded .tweet-body {
+      display: flex !important;
+      width: 100% !important;
+      flex-grow: 1 !important;
+    }
+
+    .mock-tweet.is-hidden {
+      display: none !important;
+    }
+
+    .mock-tweet.is-badged .hta-collapsed-banner {
+      display: none !important;
+    }
+
+    .mock-tweet.is-badged .tweet-body {
+      display: flex !important;
+    }
+
+    .mock-tweet.is-badged .hta-inline-badge {
+      display: inline-flex !important;
+    }
+
+    /* Inline Badges */
+    .hta-inline-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 1px 7px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 6px;
+      border: 1px solid transparent;
+    }
+
+    .hta-badge-politics {
+      background: rgba(244, 33, 46, 0.15);
+      color: #f4212e;
+      border-color: rgba(244, 33, 46, 0.3);
+    }
+
+    .hta-badge-soccer {
+      background: rgba(0, 186, 124, 0.15);
+      color: #00ba7c;
+      border-color: rgba(0, 186, 124, 0.3);
+    }
+
+    .hta-badge-finance {
+      background: rgba(255, 173, 31, 0.15);
+      color: #ffad1f;
+      border-color: rgba(255, 173, 31, 0.3);
+    }
+
+    /* Features Grid (Bento) */
+    .features {
+      padding: 80px 0;
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .bento-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(12px);
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bento-item:hover {
+      border-color: rgba(29, 155, 240, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .bento-item.col-span-2 {
+      grid-column: span 2;
+    }
+
+    .bento-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .bento-title {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
+    }
+
+    .bento-desc {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Comparison Table */
+    .comparison-section {
+      padding: 80px 0;
+    }
+
+    .comp-table-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .comp-table th, .comp-table td {
+      padding: 18px 24px;
+      font-size: 14.5px;
+    }
+
+    .comp-table th {
+      background: rgba(10, 14, 22, 0.8);
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .comp-table th.highlight-col {
+      color: var(--color-primary);
+      background: rgba(29, 155, 240, 0.08);
+    }
+
+    .comp-table td {
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+    }
+
+    .comp-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comp-table td.highlight-col {
+      background: rgba(29, 155, 240, 0.04);
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* Installation Steps */
+    .install-section {
+      padding: 96px 0;
+      position: relative;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .step-card {
+      background: linear-gradient(180deg, rgba(22, 30, 48, 0.7) 0%, rgba(13, 17, 28, 0.85) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 32px 28px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    .step-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(29, 155, 240, 0.6), transparent);
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+    }
+
+    .step-card:hover {
+      border-color: rgba(29, 155, 240, 0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .step-card:hover::before {
+      opacity: 1;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      background: rgba(29, 155, 240, 0.12);
+      color: #1d9bf0;
+      border: 1px solid rgba(29, 155, 240, 0.3);
+    }
+
+    .step-badge-alt {
+      background: rgba(168, 85, 247, 0.12);
+      color: #c084fc;
+      border-color: rgba(168, 85, 247, 0.3);
+    }
+
+    .step-icon-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    .step-desc {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .step-action-box {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .step-btn-chrome {
+      width: 100%;
+      background: linear-gradient(135deg, #1d9bf0, #1a8cd8);
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 14.5px;
+      font-weight: 700;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 16px rgba(29, 155, 240, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .step-btn-chrome:hover {
+      background: linear-gradient(135deg, #24a4f8, #1d9bf0);
+      box-shadow: 0 6px 24px rgba(29, 155, 240, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .step-key-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .step-key-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #94a3b8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .step-dot-active {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ba7c;
+      box-shadow: 0 0 8px #00ba7c;
+    }
+
+    .step-key-link {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 12.5px;
+      transition: color 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .step-key-link:hover {
+      color: #79c0ff;
+      text-decoration: underline;
+    }
+
+    /* FAQ Section */
+    .faq-section {
+      padding: 80px 0;
+    }
+
+    .faq-list {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+
+    .faq-item:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .faq-question {
+      padding: 20px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .faq-icon {
+      font-size: 18px;
+      color: var(--text-dim);
+      transition: transform 0.2s ease;
+    }
+
+    .faq-answer {
+      padding: 0 24px 20px;
+      font-size: 14.5px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      display: none;
+    }
+
+    .faq-item.active .faq-answer {
+      display: block;
+    }
+
+    .faq-item.active .faq-icon {
+      transform: rotate(45deg);
+      color: var(--color-primary);
+    }
+
+    /* CTA Banner */
+    .cta-banner {
+      margin: 64px 0 96px;
+      padding: 64px 32px;
+      background: linear-gradient(135deg, rgba(29, 155, 240, 0.15), rgba(168, 85, 247, 0.15));
+      border: 1px solid rgba(29, 155, 240, 0.3);
+      border-radius: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-title {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      margin-bottom: 16px;
+    }
+
+    .cta-desc {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 48px 0;
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--color-primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .hero-content {
+        align-items: center;
+        text-align: center;
+      }
+      .hero-title, .hero-desc {
+        text-align: center;
+      }
+      .hero-cta {
+        justify-content: center;
+      }
+      .hero-meta {
+        align-items: center;
+      }
+      .hero-preview {
+        max-width: 640px;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero-title { font-size: 38px; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .bento-item.col-span-2 { grid-column: span 1; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .hero {
+        padding: 32px 0 44px;
+      }
+      .hero-title {
+        font-size: 30px;
+        letter-spacing: -0.6px;
+      }
+      .hero-desc {
+        font-size: 15px;
+      }
+      .hero-cta {
+        flex-direction: column;
+        width: 100%;
+      }
+      .hero-cta .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .hero-meta {
+        align-items: flex-start;
+      }
+      .sim-toolbar {
+        padding: 12px 14px;
+      }
+      .sim-mode-select {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .sim-mode-btn {
+        flex: 1;
+        text-align: center;
+        padding: 5px 6px;
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <!-- Anchor for top navigation and legacy #simulator links -->
+  <div id="simulator" style="position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none;"></div>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <span>Hide The Annoying</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#simulator">Live Simulator</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#comparison">Comparison</a></li>
+          <li><a href="#install">Install</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="https://chromewebstore.google.com/detail/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="4"/>
+            <line x1="21.17" y1="8" x2="12" y2="8"/>
+            <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
+            <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
+          </svg>
+          Add to Chrome
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section with Side-by-Side CTA and Interactive Simulator -->
+  <section class="hero">
+    <div class="container hero-container">
+      <div class="hero-grid">
+
+        <!-- Left Column: Value Proposition & CTA -->
+        <div class="hero-content">
+          <div class="hero-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2zm0-6h2v4h-2z"/>
+            </svg>
+            <span>Manifest V3 · TypeSafe Jev AI Engine</span>
+          </div>
+
+          <h1 class="hero-title">
+            Take Back Your Feed.<br>
+            <span class="gradient-text">Let AI Filter The Annoying.</span>
+          </h1>
+
+          <p class="hero-desc">
+            Tired of political ragebait, soccer flame wars, and crypto shilling cluttering your timeline?
+            <strong>Hide The Annoying</strong> uses high-speed semantic AI to collapse noise into sleek 40px summary bars.
+          </p>
+
+          <div class="hero-cta">
+            <a href="https://chromewebstore.google.com/detail/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="4"/>
+                <line x1="21.17" y1="8" x2="12" y2="8"/>
+                <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
+                <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
+              </svg>
+              Add to Chrome — It's Free
+            </a>
+            <a href="#features" class="btn btn-secondary btn-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <polyline points="19 12 12 19 5 12"/>
+              </svg>
+              Explore Features
+            </a>
+          </div>
+
+          <div class="hero-meta">
+            <div class="hero-meta-item">
+              <span>⚡</span>
+              <span><strong>70ms</strong> Semantic Detection (Jev AI)</span>
+            </div>
+            <div class="hero-meta-item">
+              <span>🛡️</span>
+              <span><strong>100% Client-Side Privacy</strong> — Zero telemetry</span>
+            </div>
+            <div class="hero-meta-item">
+              <span>✨</span>
+              <span>Works on Chrome, Brave, Arc, Edge, Opera</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive Live Simulator -->
+        <div class="hero-preview">
+          <div class="simulator-card">
+        <!-- Simulator Controls -->
+        <div class="sim-toolbar">
+          <div class="sim-status">
+            <div class="sim-toggle-wrapper sim-toggle-active" id="simMasterToggle" title="Toggle Extension Filter">
+              <div class="sim-switch"></div>
+              <span style="font-weight: 700; font-size: 14px;" id="simStatusText">Extension Active</span>
+            </div>
+          </div>
+
+          <div class="sim-mode-select">
+            <button class="sim-mode-btn active" data-mode="collapse">Soft Collapse</button>
+            <button class="sim-mode-btn" data-mode="hide">Hard Hide</button>
+            <button class="sim-mode-btn" data-mode="badge">Inline Badges</button>
+          </div>
+        </div>
+
+        <!-- Simulated Twitter Feed -->
+        <div class="mock-timeline" id="mockTimeline">
+
+          <!-- Post 1: Politics / Ragebait -->
+          <div class="mock-tweet is-collapsed" data-category="politics" id="tweet-1">
+            <div class="hta-collapsed-banner">
+              <div class="hta-banner-info">
+                <span class="hta-icon">🏛️</span>
+                <div class="hta-text">
+                  <span>Hidden annoying tweet by <span class="hta-handle">@dc_wire_report</span></span>
+                  <span class="hta-category-tag hta-tag-politics">Politics / Ragebait</span>
+                </div>
+              </div>
+              <div class="hta-banner-actions">
+                <button class="hta-btn hta-btn-toggle" onclick="toggleTweetView('tweet-1')">Show</button>
+                <button class="hta-btn hta-btn-cache" onclick="removeUserFromCache('dc_wire_report', 'tweet-1')">Remove from Cache</button>
+                <button class="hta-btn hta-btn-allow" onclick="allowUser('dc_wire_report', 'tweet-1')">Always Allow</button>
+              </div>
+            </div>
+
+            <div class="tweet-body">
+              <div class="tweet-avatar">🏛️</div>
+              <div class="tweet-main">
+                <div class="tweet-author">
+                  <span class="tweet-name">Capitol Wire</span>
+                  <span class="tweet-handle">@dc_wire_report</span>
+                  <span class="hta-inline-badge hta-badge-politics" style="display:none;">🏛️ Politics</span>
+                </div>
+                <div class="tweet-text">
+                  BREAKING: The opposing party just voted down the new infrastructure budget. Absolute betrayal of working families and rampant corruption in congress! RT to expose them! #Politics #Congress
+                </div>
+                <div class="tweet-actions">
+                  <span class="tweet-action-item">💬 412</span>
+                  <span class="tweet-action-item">🔁 1.2K</span>
+                  <span class="tweet-action-item">❤️ 8.4K</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post 2: Soccer / Sports Drama -->
+          <div class="mock-tweet is-collapsed" data-category="soccer" id="tweet-2">
+            <div class="hta-collapsed-banner">
+              <div class="hta-banner-info">
+                <span class="hta-icon">⚽</span>
+                <div class="hta-text">
+                  <span>Hidden annoying tweet by <span class="hta-handle">@premier_rants</span></span>
+                  <span class="hta-category-tag hta-tag-soccer">Football / Soccer</span>
+                </div>
+              </div>
+              <div class="hta-banner-actions">
+                <button class="hta-btn hta-btn-toggle" onclick="toggleTweetView('tweet-2')">Show</button>
+                <button class="hta-btn hta-btn-cache" onclick="removeUserFromCache('premier_rants', 'tweet-2')">Remove from Cache</button>
+                <button class="hta-btn hta-btn-allow" onclick="allowUser('premier_rants', 'tweet-2')">Always Allow</button>
+              </div>
+            </div>
+
+            <div class="tweet-body">
+              <div class="tweet-avatar">⚽</div>
+              <div class="tweet-main">
+                <div class="tweet-author">
+                  <span class="tweet-name">Matchday Rants</span>
+                  <span class="tweet-handle">@premier_rants</span>
+                  <span class="hta-inline-badge hta-badge-soccer" style="display:none;">⚽ Football</span>
+                </div>
+                <div class="tweet-text">
+                  The referee has completely ROBBED us in stoppage time! Clear penalty denied, VAR is completely useless, worst officiating in football history. Sack the referee! #RefOut #VAR #PremierLeague
+                </div>
+                <div class="tweet-actions">
+                  <span class="tweet-action-item">💬 890</span>
+                  <span class="tweet-action-item">🔁 2.3K</span>
+                  <span class="tweet-action-item">❤️ 12K</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post 3: Crypto / Financial Shilling -->
+          <div class="mock-tweet is-collapsed" data-category="finance" id="tweet-3">
+            <div class="hta-collapsed-banner">
+              <div class="hta-banner-info">
+                <span class="hta-icon">📈</span>
+                <div class="hta-text">
+                  <span>Hidden annoying tweet by <span class="hta-handle">@crypto_whale_99</span></span>
+                  <span class="hta-category-tag hta-tag-finance">Finance / Crypto</span>
+                </div>
+              </div>
+              <div class="hta-banner-actions">
+                <button class="hta-btn hta-btn-toggle" onclick="toggleTweetView('tweet-3')">Show</button>
+                <button class="hta-btn hta-btn-cache" onclick="removeUserFromCache('crypto_whale_99', 'tweet-3')">Remove from Cache</button>
+                <button class="hta-btn hta-btn-allow" onclick="allowUser('crypto_whale_99', 'tweet-3')">Always Allow</button>
+              </div>
+            </div>
+
+            <div class="tweet-body">
+              <div class="tweet-avatar">🚀</div>
+              <div class="tweet-main">
+                <div class="tweet-author">
+                  <span class="tweet-name">Crypto Moon Signals</span>
+                  <span class="tweet-handle">@crypto_whale_99</span>
+                  <span class="hta-inline-badge hta-badge-finance" style="display:none;">📈 Finance</span>
+                </div>
+                <div class="tweet-text">
+                  🚨 1000x GEM ALERT! $PEPE2 is breaking out! Tier-1 CEX listing imminent. Drop your wallet below for private round allocation! 💰🚀 #Bitcoin
+                </div>
+                <div class="tweet-actions">
+                  <span class="tweet-action-item">💬 1.5K</span>
+                  <span class="tweet-action-item">🔁 3.8K</span>
+                  <span class="tweet-action-item">❤️ 9.1K</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post 4: Clean / Permitted Tweet -->
+          <div class="mock-tweet" id="tweet-4">
+            <div class="tweet-body">
+              <div class="tweet-avatar">👨‍💻</div>
+              <div class="tweet-main">
+                <div class="tweet-author">
+                  <span class="tweet-name">turkerdev</span>
+                  <span class="tweet-handle">@turkerdev</span>
+                  <span style="font-size: 11px; background: rgba(0, 186, 124, 0.15); color: #00ba7c; padding: 1px 7px; border-radius: 9999px; margin-left: 6px; font-weight: 600;">✅ Clean Tweet</span>
+                </div>
+                <div class="tweet-text">
+                  Finally shipped Hide The Annoying! Powered by TypeSafe Jev AI to soft-collapse politics, soccer flame wars, and crypto shilling in real-time. Zero tracking, 100% client-side. Reclaim your feed at <a href="https://hide-the-annoying.turker.dev" target="_blank" rel="noopener">hide-the-annoying.turker.dev</a> 🛡️✨
+                </div>
+                <div class="tweet-actions">
+                  <span class="tweet-action-item">💬 48</span>
+                  <span class="tweet-action-item">🔁 182</span>
+                  <span class="tweet-action-item">❤️ 1.4K</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- Bento Features Section -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Key Architecture</div>
+        <h2 class="section-title">Designed for Discerning Readers</h2>
+        <p class="section-desc">Traditional filters break or mute entire accounts. Hide The Annoying uses semantic intelligence to preserve what matters.</p>
+      </div>
+
+      <div class="bento-grid">
+        <!-- Card 1 -->
+        <div class="bento-item col-span-2">
+          <div class="bento-icon">🤖</div>
+          <h3 class="bento-title">True Semantic AI, Not Dumb Keyword Lists</h3>
+          <p class="bento-desc">
+            Keyword mutes are notoriously blunt: blocking "sale" hides your favorite indie game release, while blocking "coin" hides historical artifacts.
+            Powered by <strong>TypeSafe Jev (System One)</strong>, Hide The Annoying evaluates context in ~70–300ms, distinguishing between a Steam discount discussion and predatory crypto shilling.
+          </p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bento-item">
+          <div class="bento-icon">🎛️</div>
+          <h3 class="bento-title">Soft Collapse Philosophy</h3>
+          <p class="bento-desc">
+            Complete timeline removals cause jarring layout shifts and disorienting gaps. Our 40px summary bar lets you know something was filtered, why it was flagged, and lets you view it with 1 click.
+          </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bento-item">
+          <div class="bento-icon">🔒</div>
+          <h3 class="bento-title">Zero Tracking & Privacy</h3>
+          <p class="bento-desc">
+            Your preferences, cached decisions, and API keys remain strictly inside your browser's <code>chrome.storage.local</code>. No analytics scripts, no tracking pixels, and no data harvesting.
+          </p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bento-item">
+          <div class="bento-icon">⚡</div>
+          <h3 class="bento-title">High-Speed Local Cache</h3>
+          <p class="bento-desc">
+            Never wait twice. Evaluated tweets and handles are instantly cached in memory and indexed in local storage, guaranteeing 60 FPS smooth scrolling down endless feeds.
+          </p>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="bento-item">
+          <div class="bento-icon">📋</div>
+          <h3 class="bento-title">Allowlist & Blocklist Control</h3>
+          <p class="bento-desc">
+            Love following a specific political journalist or sports analyst? Add them to your Allowlist with a single click. Their posts will stay pristine and uncollapsed forever.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section class="comparison-section" id="comparison">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Comparison</div>
+        <h2 class="section-title">How Does It Compare?</h2>
+        <p class="section-desc">See why semantic AI is the future of content filtering on the modern web.</p>
+      </div>
+
+      <div class="comp-table-wrapper">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>X / Twitter Mute Lists</th>
+              <th>Generic AdBlockers</th>
+              <th class="highlight-col">Hide The Annoying</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Context Comprehension</strong></td>
+              <td>❌ Literal string matching only</td>
+              <td>❌ Only blocks fixed CSS rules</td>
+              <td class="highlight-col">✅ Deep semantic AI context</td>
+            </tr>
+            <tr>
+              <td><strong>False Positive Avoidance</strong></td>
+              <td>❌ High (Mutes innocent discussions)</td>
+              <td>❌ Breaks timeline structure</td>
+              <td class="highlight-col">✅ High precision (Distinguishes nuance)</td>
+            </tr>
+            <tr>
+              <td><strong>Soft Collapse (Peek Option)</strong></td>
+              <td>❌ Gone completely or whole account muted</td>
+              <td>❌ Empty whitespace left behind</td>
+              <td class="highlight-col">✅ 40px summary bar with 1-click Show</td>
+            </tr>
+            <tr>
+              <td><strong>Multilingual Understanding</strong></td>
+              <td>❌ Requires hundreds of manual keywords</td>
+              <td>❌ None</td>
+              <td class="highlight-col">✅ Native support (TR, EN, global)</td>
+            </tr>
+            <tr>
+              <td><strong>Manifest V3 Architecture</strong></td>
+              <td>— Native</td>
+              <td>⚠️ Legacy MV2 transition issues</td>
+              <td class="highlight-col">✅ Clean MV3 with Service Worker</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation Steps -->
+  <section class="install-section" id="install">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Get Started</div>
+        <h2 class="section-title">Install in 2 Simple Steps</h2>
+        <p class="section-desc">Start browsing a calmer, noise-free timeline in less than 60 seconds.</p>
+      </div>
+
+      <div class="steps-grid">
+        <!-- Step 1 -->
+        <div class="step-card">
+          <div>
+            <div class="step-header">
+              <span class="step-badge">Step 01</span>
+              <span class="step-icon-badge">★ Free Extension</span>
+            </div>
+            <h3 class="step-title">Add to Chrome</h3>
+            <p class="step-desc">
+              Install Hide The Annoying directly from the official Chrome Web Store with one click. Automatically syncs with all your Chromium browsers.
+            </p>
+          </div>
+          <div class="step-action-box">
+            <a href="https://chromewebstore.google.com/detail/hide-the-annoying" target="_blank" rel="noopener" class="step-btn-chrome">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="4"/>
+                <line x1="21.17" y1="8" x2="12" y2="8"/>
+                <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
+                <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
+              </svg>
+              <span>Add to Chrome — It's Free</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card">
+          <div>
+            <div class="step-header">
+              <span class="step-badge step-badge-alt">Step 02</span>
+              <span class="step-icon-badge">⚡ ~70ms AI Latency</span>
+            </div>
+            <h3 class="step-title">Enter API Key & Enjoy</h3>
+            <p class="step-desc">
+              Click the extension icon in your toolbar, input your TypeSafe Jev API key, and browse X. Noise is filtered quietly in the background!
+            </p>
+          </div>
+          <div class="step-action-box">
+            <div class="step-key-box">
+              <div class="step-key-info">
+                <span class="step-dot-active"></span>
+                <span>api.typesafe.ai</span>
+              </div>
+              <a href="https://typesafe.ai" target="_blank" rel="noopener" class="step-key-link">Get API Key ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Got Questions?</div>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>What is TypeSafe Jev System One?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            TypeSafe Jev is a specialized, calibrated decision model designed for ultra-low latency classification (~70–300ms). Unlike massive 70B parameter chat models, System One delivers swift, deterministic, structured choices ideal for real-time web extension workloads.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Does this extension track my personal browsing or direct messages?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            No. The extension only evaluates publicly visible tweet text on <code>x.com</code> and <code>twitter.com</code> timelines. It does not access private messages, cookies, passwords, or personal history. Please review our <a href="privacy.html" style="color: var(--color-primary); text-decoration: underline;">Privacy Policy</a> for full disclosures.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Can I customize which topics get collapsed?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Yes! In the extension popup or options dashboard, you can individually toggle Politics & Ragebait, Soccer/Football, or Finance & Crypto. You can also define custom keywords and block specific topics according to your own taste.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>What happens when I click "Always Allow"?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Clicking "Always Allow" adds that account handle to your personal Allowlist. The extension immediately unhides their tweets across the page and will never filter them again, regardless of what topics they discuss.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Which browsers are supported?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Hide The Annoying is built according to standard Manifest V3 specifications and works seamlessly on Google Chrome, Brave, Arc, Microsoft Edge, Opera, and any other Chromium-based browser.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="container">
+    <div class="cta-banner">
+      <h2 class="cta-title">Ready for a Peaceful Timeline?</h2>
+      <p class="cta-desc">Add the extension to your browser today and experience social media without the exhausting toxicity.</p>
+      <a href="https://chromewebstore.google.com/detail/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="4"/>
+          <line x1="21.17" y1="8" x2="12" y2="8"/>
+          <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
+          <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
+        </svg>
+        Add to Chrome — Free Extension
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <p><strong>Hide The Annoying</strong> · Built with ❤️ by @turkerdev</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="https://typesafe.ai" target="_blank" rel="noopener">TypeSafe AI</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive Demo Logic -->
+  <script>
+    let isExtensionActive = true;
+    let currentMode = 'collapse'; // 'collapse' | 'hide' | 'badge'
+    const allowedUsers = new Set();
+
+    // Toggle master extension power in simulator
+    const masterToggle = document.getElementById('simMasterToggle');
+    const statusText = document.getElementById('simStatusText');
+
+    masterToggle.addEventListener('click', () => {
+      isExtensionActive = !isExtensionActive;
+      if (isExtensionActive) {
+        masterToggle.classList.add('sim-toggle-active');
+        statusText.textContent = 'Extension Active';
+      } else {
+        masterToggle.classList.remove('sim-toggle-active');
+        statusText.textContent = 'Extension Paused';
+      }
+      applySimulatorState();
+    });
+
+    // Switch filtering modes in simulator
+    const modeButtons = document.querySelectorAll('.sim-mode-btn');
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        applySimulatorState();
+      });
+    });
+
+    function applySimulatorState() {
+      const tweets = document.querySelectorAll('.mock-tweet[data-category]');
+      tweets.forEach(tweet => {
+        const handle = tweet.querySelector('.hta-handle')?.textContent.replace('@', '');
+        const isAllowed = handle && allowedUsers.has(handle);
+        const toggleBtn = tweet.querySelector('.hta-btn-toggle');
+
+        // Reset all simulation classes first
+        tweet.classList.remove('is-collapsed', 'is-hidden', 'is-badged', 'is-expanded');
+        if (toggleBtn) toggleBtn.textContent = 'Show';
+
+        // When Extension is PAUSED or user is allowed:
+        // Everything renders 100% normal and unfiltered!
+        if (!isExtensionActive || isAllowed) {
+          return;
+        }
+
+        // When Extension is ACTIVE:
+        if (currentMode === 'collapse') {
+          tweet.classList.add('is-collapsed');
+        } else if (currentMode === 'hide') {
+          tweet.classList.add('is-hidden');
+        } else if (currentMode === 'badge') {
+          tweet.classList.add('is-badged');
+        }
+      });
+    }
+
+    // Toggle individual tweet view (Show / Hide)
+    function toggleTweetView(tweetId) {
+      const tweet = document.getElementById(tweetId);
+      if (!tweet) return;
+      const toggleBtn = tweet.querySelector('.hta-btn-toggle');
+
+      if (tweet.classList.contains('is-collapsed')) {
+        tweet.classList.remove('is-collapsed');
+        tweet.classList.add('is-expanded');
+        if (toggleBtn) toggleBtn.textContent = 'Hide';
+      } else if (tweet.classList.contains('is-expanded')) {
+        tweet.classList.remove('is-expanded');
+        tweet.classList.add('is-collapsed');
+        if (toggleBtn) toggleBtn.textContent = 'Show';
+      }
+    }
+
+    // Allow user permanently in simulator
+    function allowUser(handle, tweetId) {
+      allowedUsers.add(handle);
+      const tweet = document.getElementById(tweetId);
+      if (tweet) {
+        const allowBtn = tweet.querySelector('.hta-btn-allow');
+        if (allowBtn) {
+          allowBtn.textContent = 'Allowed';
+          allowBtn.disabled = true;
+        }
+        setTimeout(() => {
+          tweet.classList.remove('is-collapsed', 'is-hidden', 'is-badged', 'is-expanded');
+        }, 300);
+      }
+    }
+
+    // Remove user / decision from cache (unhide false detection without whitelisting)
+    function removeUserFromCache(handle, tweetId) {
+      const tweet = document.getElementById(tweetId);
+      if (tweet) {
+        const cacheBtn = tweet.querySelector('.hta-btn-cache');
+        if (cacheBtn) {
+          cacheBtn.textContent = 'Cleared ✓';
+          cacheBtn.disabled = true;
+        }
+        setTimeout(() => {
+          tweet.classList.remove('is-collapsed', 'is-hidden', 'is-badged', 'is-expanded');
+        }, 300);
+      }
+    }
+
+    // FAQ Accordion
+    function toggleFaq(element) {
+      const item = element.parentElement;
+      const isActive = item.classList.contains('active');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+      if (!isActive) {
+        item.classList.add('active');
+      }
+    }
+
+    // Copy helper
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.color = '#00ba7c';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.color = '';
+        }, 1800);
+      });
+    }
+
+    // Ensure the website starts at the very top on load or refresh
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!window.location.hash || window.location.hash === '#simulator' || window.location.hash === '#top' || window.location.hash === '#') {
+        window.scrollTo(0, 0);
+      }
+    });
+  </script>
+</body>
+</html>

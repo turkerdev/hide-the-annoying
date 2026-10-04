@@ -13,6 +13,7 @@
   let currentSettings = null;
   const localDecisionCache = new Map(); // Fast in-memory cache for this tab
   const filteredElements = new Set();
+  const userExpandedKeys = new Set(); // Track tweetKeys that the user manually clicked "Show" on
   let pendingBatch = [];
   let debounceTimeout = null;
 
@@ -48,11 +49,19 @@
         if (m.type === 'childList' && m.addedNodes.length > 0) {
           shouldScan = true;
         } else if (m.type === 'attributes' && m.attributeName === 'class') {
-          // If Twitter's React wiped the collapsed class on hover or re-render, restore it immediately
+          // If Twitter's React wiped the collapsed or expanded class on hover or re-render, restore it immediately
           const target = m.target;
-          if (target && target.dataset && target.dataset.htaCollapsed === 'true') {
-            if (!target.classList.contains('hta-tweet-collapsed')) {
-              target.classList.add('hta-tweet-collapsed');
+          if (target && target.dataset) {
+            const tweetKey = target.dataset.htaKey;
+            const isExpanded = target.dataset.htaExpanded === 'true' || (tweetKey && userExpandedKeys.has(tweetKey));
+            if (isExpanded) {
+              if (!target.classList.contains('hta-tweet-expanded')) {
+                target.classList.add('hta-tweet-expanded');
+              }
+            } else if (target.dataset.htaCollapsed === 'true') {
+              if (!target.classList.contains('hta-tweet-collapsed')) {
+                target.classList.add('hta-tweet-collapsed');
+              }
             }
           }
         }
@@ -89,7 +98,14 @@
    * Scans current visible tweets
    */
   async function scanPage() {
-    if (currentSettings && !currentSettings.enabled) return;
+    if (currentSettings && !currentSettings.enabled) {
+      document.querySelectorAll('article[data-testid="tweet"]').forEach(article => {
+        removeFiltersFromTweet(article);
+      });
+      filteredElements.clear();
+      updateBadge();
+      return;
+    }
 
     const tweetArticles = document.querySelectorAll('article[data-testid="tweet"]');
     if (!tweetArticles.length) return;
@@ -269,19 +285,35 @@
 
     if (mode === 'hide') {
       article.classList.add('hta-hard-hidden');
-      article.classList.remove('hta-tweet-collapsed');
+      article.classList.remove('hta-tweet-collapsed', 'hta-tweet-expanded');
       delete article.dataset.htaCollapsed;
+      delete article.dataset.htaExpanded;
       removeBanner(article);
     } else if (mode === 'badge') {
-      article.classList.remove('hta-hard-hidden', 'hta-tweet-collapsed');
+      article.classList.remove('hta-hard-hidden', 'hta-tweet-collapsed', 'hta-tweet-expanded');
       delete article.dataset.htaCollapsed;
+      delete article.dataset.htaExpanded;
       removeBanner(article);
       injectInlineBadge(article, cat, meta, decision.reason);
     } else {
       // Default: Soft Collapse
       article.classList.remove('hta-hard-hidden');
-      article.classList.add('hta-tweet-collapsed');
-      article.dataset.htaCollapsed = 'true';
+
+      const isManuallyExpanded = (tweetInfo.tweetKey && userExpandedKeys.has(tweetInfo.tweetKey)) || article.dataset.htaExpanded === 'true';
+
+      if (isManuallyExpanded) {
+        if (tweetInfo.tweetKey) userExpandedKeys.add(tweetInfo.tweetKey);
+        article.classList.remove('hta-tweet-collapsed');
+        delete article.dataset.htaCollapsed;
+        article.classList.add('hta-tweet-expanded');
+        article.dataset.htaExpanded = 'true';
+      } else {
+        article.classList.remove('hta-tweet-expanded');
+        delete article.dataset.htaExpanded;
+        article.classList.add('hta-tweet-collapsed');
+        article.dataset.htaCollapsed = 'true';
+      }
+
       injectCollapsedBanner(article, tweetInfo.handle, cat, meta, decision.reason);
     }
   }
@@ -305,6 +337,11 @@
       article.prepend(banner);
     }
 
+    const currentKey = article.dataset.htaKey;
+    const isCurrentlyExpanded = article.dataset.htaExpanded === 'true' ||
+      article.classList.contains('hta-tweet-expanded') ||
+      (currentKey && userExpandedKeys.has(currentKey));
+
     banner.innerHTML = `
       <div class="hta-banner-info">
         <span class="hta-icon">${meta.icon}</span>
@@ -314,7 +351,8 @@
         </div>
       </div>
       <div class="hta-banner-actions">
-        <button class="hta-btn hta-btn-toggle" title="Toggle tweet view">Show</button>
+        <button class="hta-btn hta-btn-toggle" title="${isCurrentlyExpanded ? 'Collapse tweet again' : 'Show hidden tweet content'}">${isCurrentlyExpanded ? 'Hide' : 'Show'}</button>
+        <button class="hta-btn hta-btn-cache" title="Remove this user and decision from cache if falsely identified">Remove from Cache</button>
         <button class="hta-btn hta-btn-allow" title="Always allow this user">Always Allow</button>
       </div>
     `;
@@ -323,15 +361,60 @@
     toggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       e.preventDefault();
+      const activeKey = article.dataset.htaKey;
       const isCollapsed = article.dataset.htaCollapsed === 'true' || article.classList.contains('hta-tweet-collapsed');
       if (isCollapsed) {
+        if (activeKey) userExpandedKeys.add(activeKey);
         article.classList.remove('hta-tweet-collapsed');
         delete article.dataset.htaCollapsed;
+        article.classList.add('hta-tweet-expanded');
+        article.dataset.htaExpanded = 'true';
         toggleBtn.textContent = 'Hide';
+        toggleBtn.setAttribute('title', 'Collapse tweet again');
       } else {
+        if (activeKey) userExpandedKeys.delete(activeKey);
+        article.classList.remove('hta-tweet-expanded');
+        delete article.dataset.htaExpanded;
         article.classList.add('hta-tweet-collapsed');
         article.dataset.htaCollapsed = 'true';
         toggleBtn.textContent = 'Show';
+        toggleBtn.setAttribute('title', 'Show hidden tweet content');
+      }
+    });
+
+    const cacheBtn = banner.querySelector('.hta-btn-cache');
+    cacheBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      cacheBtn.disabled = true;
+      cacheBtn.textContent = 'Cleared ✓';
+
+      try {
+        const tweetKey = article.dataset.htaKey || null;
+        await chrome.runtime.sendMessage({
+          action: 'REMOVE_CACHED_USER',
+          payload: { handle, tweetKey }
+        });
+
+        // Invalidate in-memory cache for this tab
+        if (tweetKey) {
+          localDecisionCache.set(tweetKey, { isAnnoying: false, reason: 'Removed from cache', category: 'clean' });
+        }
+        localDecisionCache.delete(handle.toLowerCase());
+        for (const [k] of localDecisionCache.entries()) {
+          if (k.includes(handle.toLowerCase())) {
+            localDecisionCache.delete(k);
+          }
+        }
+
+        // Immediately unhide / remove filters from all matching tweets on page
+        const matchingTweets = document.querySelectorAll(`article[data-hta-handle="${handle.toLowerCase()}"]`);
+        matchingTweets.forEach(el => removeFiltersFromTweet(el));
+        removeFiltersFromTweet(article);
+      } catch (err) {
+        console.error('[HideTheAnnoying] Error removing from cache:', err);
+        cacheBtn.disabled = false;
+        cacheBtn.textContent = 'Remove from Cache';
       }
     });
 
@@ -381,11 +464,16 @@
   }
 
   function removeFiltersFromTweet(article) {
-    article.classList.remove('hta-hard-hidden', 'hta-tweet-collapsed');
+    const key = article.dataset.htaKey;
+    if (key) userExpandedKeys.delete(key);
+    article.classList.remove('hta-hard-hidden', 'hta-tweet-collapsed', 'hta-tweet-expanded');
     delete article.dataset.htaCollapsed;
+    delete article.dataset.htaExpanded;
     removeBanner(article);
     const badge = article.querySelector('.hta-inline-badge');
     if (badge) badge.remove();
+    filteredElements.delete(article);
+    updateBadge();
   }
 
   function removeBanner(article) {
@@ -478,15 +566,53 @@
 
   // Listen for settings or cache changes from popup/options
   chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace === 'local' && (changes.settings || changes.userCache)) {
-      if (changes.settings) currentSettings = changes.settings.newValue;
-      // Invalidate memory cache & rescan
-      localDecisionCache.clear();
-      document.querySelectorAll('article[data-testid="tweet"]').forEach(article => {
-        delete article.dataset.htaProcessed;
-        delete article.dataset.htaKey;
-      });
-      scanPage();
+    if (namespace === 'local') {
+      if (changes.settings) {
+        const oldSettings = currentSettings;
+        currentSettings = changes.settings.newValue;
+
+        // If extension disabled, unfilter all tweets
+        if (currentSettings && !currentSettings.enabled) {
+          document.querySelectorAll('article[data-testid="tweet"]').forEach(article => {
+            removeFiltersFromTweet(article);
+          });
+          filteredElements.clear();
+          updateBadge();
+          return;
+        }
+
+        // Only rescan if filter modes or categories actually changed
+        const categoriesChanged = JSON.stringify(oldSettings?.categories) !== JSON.stringify(currentSettings?.categories);
+        const modeChanged = oldSettings?.filterMode !== currentSettings?.filterMode;
+        const keywordsChanged = JSON.stringify(oldSettings?.customKeywords) !== JSON.stringify(currentSettings?.customKeywords);
+
+        if (categoriesChanged || modeChanged || keywordsChanged) {
+          localDecisionCache.clear();
+          document.querySelectorAll('article[data-testid="tweet"]').forEach(article => {
+            delete article.dataset.htaProcessed;
+            delete article.dataset.htaKey;
+          });
+          scanPage();
+        }
+      }
+
+      // Only trigger full rescan on userCache if it was explicitly CLEARED (e.g. "Clear All Cache" clicked in options/popup)
+      // Routine single-entry cache writes from background must NOT wipe the DOM or re-collapse user-shown tweets!
+      if (changes.userCache) {
+        const newCache = changes.userCache.newValue || {};
+        const oldCache = changes.userCache.oldValue || {};
+        const isFullClear = Object.keys(newCache).length === 0 && Object.keys(oldCache).length > 0;
+
+        if (isFullClear) {
+          localDecisionCache.clear();
+          userExpandedKeys.clear();
+          document.querySelectorAll('article[data-testid="tweet"]').forEach(article => {
+            delete article.dataset.htaProcessed;
+            delete article.dataset.htaKey;
+          });
+          scanPage();
+        }
+      }
     }
   });
 
