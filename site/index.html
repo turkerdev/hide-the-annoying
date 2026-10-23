@@ -12,11 +12,13 @@
   <meta property="og:url" content="https://hide-the-annoying.turker.dev/">
   <meta property="og:title" content="Hide The Annoying — Reclaim Your Timeline on X">
   <meta property="og:description" content="Intelligent semantic AI filter for X (Twitter). Soft-collapses politics, soccer arguments, and crypto spam in real-time.">
-  <meta property="og:image" content="icons/icon-128.png">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://hide-the-annoying.turker.dev/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Hide The Annoying — Reclaim Your Timeline on X">
   <meta name="twitter:description" content="Intelligent semantic AI filter for X (Twitter). Soft-collapses politics, soccer arguments, and crypto spam in real-time.">
-  <meta name="twitter:image" content="icons/icon-128.png">
+  <meta name="twitter:image" content="https://hide-the-annoying.turker.dev/og.png">
   
   <link rel="icon" type="image/png" href="icons/icon-128.png">
   <link rel="apple-touch-icon" href="icons/icon-128.png">
@@ -144,6 +146,19 @@
       display: flex;
       align-items: center;
       gap: 12px;
+    }
+
+    .nav-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      cursor: pointer;
     }
 
     /* Buttons */
@@ -425,6 +440,32 @@
       background: rgba(10, 14, 22, 0.5);
     }
 
+    .sim-hidden-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .sim-hidden-note[hidden] {
+      display: none;
+    }
+
+    .kept-pill {
+      font-size: 11px;
+      background: rgba(0, 186, 124, 0.15);
+      color: #00ba7c;
+      padding: 1px 7px;
+      border-radius: 9999px;
+      margin-left: 6px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
     .mock-tweet {
       border-bottom: 1px solid var(--border-subtle);
       transition: all 0.2s ease;
@@ -463,6 +504,7 @@
     .tweet-author {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 4px;
       font-size: 14px;
@@ -533,6 +575,7 @@
       align-items: center !important;
       gap: 8px !important;
       flex: 1 1 auto !important;
+      min-width: 0 !important;
       overflow: hidden !important;
     }
 
@@ -542,6 +585,7 @@
     }
 
     .hta-text {
+      min-width: 0 !important;
       overflow: hidden !important;
       text-overflow: ellipsis !important;
       white-space: nowrap !important;
@@ -606,12 +650,6 @@
     .hta-btn:hover {
       background: rgba(255, 255, 255, 0.1) !important;
       border-color: rgba(255, 255, 255, 0.4) !important;
-    }
-
-    .hta-btn-cache:hover {
-      color: #1d9bf0 !important;
-      border-color: #1d9bf0 !important;
-      background: rgba(29, 155, 240, 0.1) !important;
     }
 
     .hta-btn-allow:hover {
@@ -1153,7 +1191,26 @@
       .bento-item.col-span-2,
       .bento-item.col-span-3 { grid-column: span 1; }
       .steps-grid { grid-template-columns: 1fr; }
-      .nav-links { display: none; }
+      .nav-toggle { display: inline-flex; }
+      .nav-actions .btn-secondary { display: none; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        gap: 0;
+        padding: 8px 0 12px;
+        background: #07090e;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .nav-links.is-open { display: flex; }
+      .nav-links a {
+        display: block;
+        padding: 12px 24px;
+        font-size: 15px;
+      }
     }
 
     @media (max-width: 640px) {
@@ -1175,6 +1232,7 @@
         width: 100%;
         justify-content: center;
       }
+      .nav-cta-label { display: none; }
       .hero-meta {
         align-items: flex-start;
       }
@@ -1212,7 +1270,7 @@
       </a>
 
       <nav>
-        <ul class="nav-links">
+        <ul class="nav-links" id="navLinks">
           <li><a href="#simulator">Live Simulator</a></li>
           <li><a href="#features">Features</a></li>
           <li><a href="#comparison">Comparison</a></li>
@@ -1224,13 +1282,20 @@
       </nav>
 
       <div class="nav-actions">
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <line x1="4" y1="7" x2="20" y2="7"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="17" x2="20" y2="17"/>
+          </svg>
+        </button>
         <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" aria-label="GitHub Repository">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
           </svg>
           Star on GitHub
         </a>
-        <a href="https://chromewebstore.google.com/detail/hide-the-annoying/aapbeafdimmlobengijdpahhldmhnfkl" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+        <a href="https://chromewebstore.google.com/detail/hide-the-annoying/aapbeafdimmlobengijdpahhldmhnfkl" target="_blank" rel="noopener" class="btn btn-primary btn-sm" aria-label="Add to Chrome">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/>
             <circle cx="12" cy="12" r="4"/>
@@ -1238,7 +1303,7 @@
             <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
             <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
           </svg>
-          Add to Chrome
+          <span class="nav-cta-label">Add to Chrome</span>
         </a>
       </div>
     </div>
@@ -1252,10 +1317,7 @@
         <!-- Left Column: Value Proposition & CTA -->
         <div class="hero-content">
           <div class="hero-badge">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-            </svg>
-            <span>100% Free & Open Source · Manifest V3</span>
+            <span>Semantic filter for X · Manifest V3</span>
           </div>
 
           <h1 class="hero-title">
@@ -1265,7 +1327,7 @@
 
           <p class="hero-desc">
             Tired of political ragebait, soccer flame wars, and crypto shilling cluttering your timeline?
-            <strong>Hide The Annoying</strong> is a 100% free and open-source Chrome extension using high-speed decision models to collapse noise into sleek 40px summary bars.
+            <strong>Hide The Annoying</strong> collapses that noise into a 40px bar, and leaves real discussions — like cryptography — alone.
           </p>
 
           <div class="hero-cta">
@@ -1277,7 +1339,7 @@
                 <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
                 <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
               </svg>
-              Add to Chrome — It's Free
+              Add to Chrome
             </a>
             <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-secondary btn-lg">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -1289,16 +1351,12 @@
 
           <div class="hero-meta">
             <div class="hero-meta-item">
-              <span>⭐</span>
-              <span><strong>100% Open Source</strong> on GitHub</span>
-            </div>
-            <div class="hero-meta-item">
               <span>⚡</span>
-              <span><strong>70ms</strong> Semantic Detection</span>
+              <span><strong>~70–300ms</strong> semantic detection</span>
             </div>
             <div class="hero-meta-item">
               <span>🛡️</span>
-              <span><strong>Client-Side Privacy</strong> — Zero telemetry</span>
+              <span><strong>No telemetry.</strong> Your key, your endpoint.</span>
             </div>
             <div class="hero-meta-item">
               <span>✨</span>
@@ -1329,6 +1387,10 @@
         <!-- Simulated Twitter Feed -->
         <div class="mock-timeline" id="mockTimeline">
 
+          <div class="sim-hidden-note" id="simHiddenNote" hidden>
+            <span id="simHiddenCount">3</span> posts hidden
+          </div>
+
           <!-- Post 1: Politics / Ragebait -->
           <div class="mock-tweet is-collapsed" data-category="politics" id="tweet-1">
             <div class="hta-collapsed-banner">
@@ -1341,7 +1403,6 @@
               </div>
               <div class="hta-banner-actions">
                 <button class="hta-btn hta-btn-toggle" onclick="toggleTweetView('tweet-1')">Show</button>
-                <button class="hta-btn hta-btn-cache" onclick="removeUserFromCache('dc_wire_report', 'tweet-1')">Remove from Cache</button>
                 <button class="hta-btn hta-btn-allow" onclick="allowUser('dc_wire_report', 'tweet-1')">Always Allow</button>
               </div>
             </div>
@@ -1378,7 +1439,6 @@
               </div>
               <div class="hta-banner-actions">
                 <button class="hta-btn hta-btn-toggle" onclick="toggleTweetView('tweet-2')">Show</button>
-                <button class="hta-btn hta-btn-cache" onclick="removeUserFromCache('premier_rants', 'tweet-2')">Remove from Cache</button>
                 <button class="hta-btn hta-btn-allow" onclick="allowUser('premier_rants', 'tweet-2')">Always Allow</button>
               </div>
             </div>
@@ -1415,7 +1475,6 @@
               </div>
               <div class="hta-banner-actions">
                 <button class="hta-btn hta-btn-toggle" onclick="toggleTweetView('tweet-3')">Show</button>
-                <button class="hta-btn hta-btn-cache" onclick="removeUserFromCache('crypto_whale_99', 'tweet-3')">Remove from Cache</button>
                 <button class="hta-btn hta-btn-allow" onclick="allowUser('crypto_whale_99', 'tweet-3')">Always Allow</button>
               </div>
             </div>
@@ -1440,6 +1499,28 @@
             </div>
           </div>
 
+          <!-- Near-miss: keyword filters would hide this, semantic classification keeps it -->
+          <div class="mock-tweet" id="tweet-kept">
+            <div class="tweet-body">
+              <div class="tweet-avatar">🔐</div>
+              <div class="tweet-main">
+                <div class="tweet-author">
+                  <span class="tweet-name">Key Material</span>
+                  <span class="tweet-handle">@sig_verify</span>
+                  <span class="kept-pill">Kept · cryptography, not a shill</span>
+                </div>
+                <div class="tweet-text">
+                  Writeup on verifying request signatures in a cryptography library. Threat model, test vectors, and why it never phones home. No token, no listing.
+                </div>
+                <div class="tweet-actions">
+                  <span class="tweet-action-item">💬 36</span>
+                  <span class="tweet-action-item">🔁 91</span>
+                  <span class="tweet-action-item">❤️ 640</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Post 4: Clean / Permitted Tweet -->
           <div class="mock-tweet" id="tweet-4">
             <div class="tweet-body">
@@ -1451,7 +1532,7 @@
                   <span style="font-size: 11px; background: rgba(0, 186, 124, 0.15); color: #00ba7c; padding: 1px 7px; border-radius: 9999px; margin-left: 6px; font-weight: 600;">✅ Clean Tweet</span>
                 </div>
                 <div class="tweet-text">
-                  Finally shipped Hide The Annoying! Powered by TypeSafe Jev AI to soft-collapse politics, soccer flame wars, and crypto shilling in real-time. Zero tracking, 100% client-side. Reclaim your feed at <a href="https://hide-the-annoying.turker.dev" target="_blank" rel="noopener">hide-the-annoying.turker.dev</a> 🛡️✨
+                  Finally shipped Hide The Annoying. Politics, soccer arguments, and crypto shilling collapse. The rest of the timeline stays.
                 </div>
                 <div class="tweet-actions">
                   <span class="tweet-action-item">💬 48</span>
@@ -1484,8 +1565,8 @@
           <div class="bento-icon">🤖</div>
           <h3 class="bento-title">True Semantic AI, Not Dumb Keyword Lists</h3>
           <p class="bento-desc">
-            Keyword mutes are notoriously blunt: blocking "sale" hides your favorite indie game release, while blocking "coin" hides historical artifacts.
-            Powered by <strong>TypeSafe Jev (System One)</strong>, Hide The Annoying evaluates context in ~70–300ms, distinguishing between a Steam discount discussion and predatory crypto shilling.
+            Keyword mutes are notoriously broken: blocking "crypto" accidentally kills legitimate cryptography and computer science discussions, while with politics, nobody can maintain a blocklist of every single politician and official's name.
+            Powered by high-speed decision models (like TypeSafe Jev & Cloudflare Clef), Hide The Annoying evaluates context in ~70–300ms, distinguishing between real discussions and annoying noise.
           </p>
         </div>
 
@@ -1503,7 +1584,7 @@
           <div class="bento-icon">🔒</div>
           <h3 class="bento-title">Zero Tracking & Privacy</h3>
           <p class="bento-desc">
-            Your preferences, cached decisions, and API keys remain strictly inside your browser's <code>chrome.storage.local</code>. No analytics scripts, no tracking pixels, and no data harvesting.
+            Settings and your API key stay in <code>chrome.storage.local</code>. There is no telemetry. Tweet text is sent only to the decision API you configure.
           </p>
         </div>
 
@@ -1525,25 +1606,6 @@
           </p>
         </div>
 
-        <!-- Card 6: 100% Open Source -->
-        <div class="bento-item col-span-3" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; background: linear-gradient(135deg, rgba(29, 155, 240, 0.08), rgba(120, 86, 255, 0.08)); border-color: rgba(29, 155, 240, 0.25);">
-          <div style="max-width: 680px;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-              <span style="font-size: 20px;">⭐</span>
-              <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-primary); background: rgba(29, 155, 240, 0.15); padding: 2px 8px; border-radius: 9999px;">100% Open Source</span>
-            </div>
-            <h3 class="bento-title" style="margin-bottom: 8px;">Auditable, Transparent, and Community-Driven</h3>
-            <p class="bento-desc" style="margin-bottom: 0;">
-              Every line of code is open source on GitHub. Inspect how decision models classify tweets, verify that zero user data is ever transmitted, or contribute your own features and improvements.
-            </p>
-          </div>
-          <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-secondary" style="border-color: rgba(255, 255, 255, 0.2); white-space: nowrap;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-            </svg>
-            View on GitHub
-          </a>
-        </div>
       </div>
     </div>
   </section>
@@ -1602,7 +1664,7 @@
               <td><strong>Open Source & Auditable</strong></td>
               <td>❌ Proprietary algorithms</td>
               <td>⚠️ Closed / Telemetry risks</td>
-              <td class="highlight-col">✅ 100% Free & Open Source on GitHub</td>
+              <td class="highlight-col">✅ Open source on GitHub</td>
             </tr>
           </tbody>
         </table>
@@ -1625,11 +1687,11 @@
           <div>
             <div class="step-header">
               <span class="step-badge">Step 01</span>
-              <span class="step-icon-badge">★ Free Extension</span>
+              <span class="step-icon-badge">Chrome Web Store</span>
             </div>
             <h3 class="step-title">Add to Chrome</h3>
             <p class="step-desc">
-              Install Hide The Annoying directly from the official Chrome Web Store with one click. Automatically syncs with all your Chromium browsers.
+              The extension is free, and the source is on GitHub. Install it from the Chrome Web Store. It runs on Chrome, Brave, Arc, and Edge.
             </p>
           </div>
           <div class="step-action-box">
@@ -1641,7 +1703,7 @@
                 <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
                 <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
               </svg>
-              <span>Add to Chrome — It's Free</span>
+              <span>Add to Chrome</span>
             </a>
           </div>
         </div>
@@ -1651,11 +1713,11 @@
           <div>
             <div class="step-header">
               <span class="step-badge step-badge-alt">Step 02</span>
-              <span class="step-icon-badge">⚡ ~70ms AI Latency</span>
+              <span class="step-icon-badge">⚡ ~70–300ms</span>
             </div>
             <h3 class="step-title">Enter API Key & Enjoy</h3>
             <p class="step-desc">
-              Click the extension icon in your toolbar, input your TypeSafe Jev API key, and browse X. Noise is filtered quietly in the background!
+              Click the extension icon, paste your TypeSafe Jev API key, and open X. Classification runs on that endpoint.
             </p>
           </div>
           <div class="step-action-box">
@@ -1687,7 +1749,7 @@
             <span class="faq-icon">+</span>
           </div>
           <div class="faq-answer">
-            Yes! Hide The Annoying is 100% free and open source. You can inspect the entire codebase, audit how decision models classify posts, verify our zero-telemetry privacy architecture, or contribute on GitHub at <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" style="color: var(--color-primary); text-decoration: underline;">github.com/turkerdev/hide-the-annoying</a>.
+            The extension is free, and the source is on GitHub. Classification uses the decision API you configure, so you bring your own TypeSafe key. You can audit how posts are classified at <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" style="color: var(--color-primary); text-decoration: underline;">github.com/turkerdev/hide-the-annoying</a>.
           </div>
         </div>
 
@@ -1748,7 +1810,7 @@
   <section class="container">
     <div class="cta-banner">
       <h2 class="cta-title">Ready for a Peaceful Timeline?</h2>
-      <p class="cta-desc">Free, transparent, and 100% open source. Add the extension to your browser or inspect the code on GitHub.</p>
+      <p class="cta-desc">Install the extension, add your TypeSafe key, and the timeline gets quieter.</p>
       <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
         <a href="https://chromewebstore.google.com/detail/hide-the-annoying/aapbeafdimmlobengijdpahhldmhnfkl" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1758,7 +1820,7 @@
             <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
             <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
           </svg>
-          Add to Chrome — Free Extension
+          Add to Chrome
         </a>
         <a href="https://github.com/turkerdev/hide-the-annoying" target="_blank" rel="noopener" class="btn btn-secondary btn-lg" style="border-color: rgba(255,255,255,0.2);">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -1774,7 +1836,7 @@
   <footer class="footer">
     <div class="container footer-inner">
       <div>
-        <p><strong>Hide The Annoying</strong> · 100% Free & Open Source · Built with ❤️ by <a href="https://github.com/turkerdev" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline;">@turkerdev</a></p>
+        <p><strong>Hide The Annoying</strong> · Built with ❤️ by <a href="https://github.com/turkerdev" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline;">@turkerdev</a></p>
       </div>
 
       <div class="footer-links">
@@ -1820,6 +1882,7 @@
 
     function applySimulatorState() {
       const tweets = document.querySelectorAll('.mock-tweet[data-category]');
+      let hiddenCount = 0;
       tweets.forEach(tweet => {
         const handle = tweet.querySelector('.hta-handle')?.textContent.replace('@', '');
         const isAllowed = handle && allowedUsers.has(handle);
@@ -1840,10 +1903,24 @@
           tweet.classList.add('is-collapsed');
         } else if (currentMode === 'hide') {
           tweet.classList.add('is-hidden');
+          hiddenCount += 1;
         } else if (currentMode === 'badge') {
           tweet.classList.add('is-badged');
         }
       });
+
+      refreshHiddenNote(hiddenCount);
+    }
+
+    function refreshHiddenNote(count) {
+      const hiddenNote = document.getElementById('simHiddenNote');
+      const hiddenCountEl = document.getElementById('simHiddenCount');
+      if (!hiddenNote || !hiddenCountEl) return;
+      const hiddenCount = typeof count === 'number'
+        ? count
+        : document.querySelectorAll('.mock-tweet.is-hidden').length;
+      hiddenCountEl.textContent = String(hiddenCount);
+      hiddenNote.hidden = hiddenCount === 0;
     }
 
     // Toggle individual tweet view (Show / Hide)
@@ -1873,25 +1950,9 @@
           allowBtn.textContent = 'Allowed';
           allowBtn.disabled = true;
         }
-        setTimeout(() => {
-          tweet.classList.remove('is-collapsed', 'is-hidden', 'is-badged', 'is-expanded');
-        }, 300);
+        tweet.classList.remove('is-collapsed', 'is-hidden', 'is-badged', 'is-expanded');
       }
-    }
-
-    // Remove user / decision from cache (unhide false detection without whitelisting)
-    function removeUserFromCache(handle, tweetId) {
-      const tweet = document.getElementById(tweetId);
-      if (tweet) {
-        const cacheBtn = tweet.querySelector('.hta-btn-cache');
-        if (cacheBtn) {
-          cacheBtn.textContent = 'Cleared ✓';
-          cacheBtn.disabled = true;
-        }
-        setTimeout(() => {
-          tweet.classList.remove('is-collapsed', 'is-hidden', 'is-badged', 'is-expanded');
-        }, 300);
-      }
+      refreshHiddenNote();
     }
 
     // FAQ Accordion
@@ -1914,6 +1975,23 @@
           btn.textContent = originalText;
           btn.style.color = '';
         }, 1800);
+      });
+    }
+
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        const open = navLinks.classList.toggle('is-open');
+        navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      });
+      navLinks.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+          navLinks.classList.remove('is-open');
+          navToggle.setAttribute('aria-expanded', 'false');
+          navToggle.setAttribute('aria-label', 'Open menu');
+        });
       });
     }
 

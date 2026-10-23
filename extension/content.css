@@ -57,6 +57,7 @@
   align-items: center !important;
   gap: 8px !important;
   flex: 1 1 auto !important;
+  min-width: 0 !important;
   overflow: hidden !important;
 }
 
@@ -66,6 +67,7 @@
 }
 
 .hta-text {
+  min-width: 0 !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
@@ -142,12 +144,6 @@
 .hta-btn:hover {
   background: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-.hta-btn-cache:hover {
-  color: #1d9bf0 !important;
-  border-color: #1d9bf0 !important;
-  background: rgba(29, 155, 240, 0.1) !important;
 }
 
 .hta-btn-allow:hover {

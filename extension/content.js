@@ -352,7 +352,6 @@
       </div>
       <div class="hta-banner-actions">
         <button class="hta-btn hta-btn-toggle" title="${isCurrentlyExpanded ? 'Collapse tweet again' : 'Show hidden tweet content'}">${isCurrentlyExpanded ? 'Hide' : 'Show'}</button>
-        <button class="hta-btn hta-btn-cache" title="Remove this user and decision from cache if falsely identified">Remove from Cache</button>
         <button class="hta-btn hta-btn-allow" title="Always allow this user">Always Allow</button>
       </div>
     `;
@@ -379,42 +378,6 @@
         article.dataset.htaCollapsed = 'true';
         toggleBtn.textContent = 'Show';
         toggleBtn.setAttribute('title', 'Show hidden tweet content');
-      }
-    });
-
-    const cacheBtn = banner.querySelector('.hta-btn-cache');
-    cacheBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      cacheBtn.disabled = true;
-      cacheBtn.textContent = 'Cleared ✓';
-
-      try {
-        const tweetKey = article.dataset.htaKey || null;
-        await chrome.runtime.sendMessage({
-          action: 'REMOVE_CACHED_USER',
-          payload: { handle, tweetKey }
-        });
-
-        // Invalidate in-memory cache for this tab
-        if (tweetKey) {
-          localDecisionCache.set(tweetKey, { isAnnoying: false, reason: 'Removed from cache', category: 'clean' });
-        }
-        localDecisionCache.delete(handle.toLowerCase());
-        for (const [k] of localDecisionCache.entries()) {
-          if (k.includes(handle.toLowerCase())) {
-            localDecisionCache.delete(k);
-          }
-        }
-
-        // Immediately unhide / remove filters from all matching tweets on page
-        const matchingTweets = document.querySelectorAll(`article[data-hta-handle="${handle.toLowerCase()}"]`);
-        matchingTweets.forEach(el => removeFiltersFromTweet(el));
-        removeFiltersFromTweet(article);
-      } catch (err) {
-        console.error('[HideTheAnnoying] Error removing from cache:', err);
-        cacheBtn.disabled = false;
-        cacheBtn.textContent = 'Remove from Cache';
       }
     });
 
