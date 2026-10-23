@@ -1,0 +1,7 @@
+name = "hide-the-annoying"
+compatibility_date = "2026-10-24"
+preview_urls = false
+
+# Static site. https://hide-the-annoying.turker.dev is already attached to this worker.
+[assets]
+directory = "./site"

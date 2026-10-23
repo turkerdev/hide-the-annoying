@@ -1,0 +1,5 @@
+Copyright 2020 The Newsreader Project Authors (https://github.com/productiontype/newsreader)
+Copyright 2021 The Schibsted Grotesk Project Authors (https://github.com/googlefonts/schibsted-grotesk)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at: https://openfontlicense.org

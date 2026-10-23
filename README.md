@@ -56,6 +56,16 @@ This generates:
 - `hide-the-annoying.zip` (root archive ready for Chrome Web Store upload)
 - `dist/hide-the-annoying-v<version>.zip` (versioned release archive)
 
+### Site
+
+From the repo root:
+
+```bash
+npx wrangler deploy
+```
+
+That publishes `site/` to the `hide-the-annoying` worker, which serves https://hide-the-annoying.turker.dev.
+
 ---
 
 ## ⚙️ Configuration & Decision Engine
@@ -85,7 +95,7 @@ hide-the-annoying/
 │   │   └── storage.js        # Settings & cache management
 │   ├── popup/                # Extension popup UI
 │   └── options/              # Full options & allowlist dashboard
-├── site/                     # Showcase website for Cloudflare Pages
+├── site/                     # Marketing site, deployed with Wrangler
 │   ├── index.html            # Landing page with interactive live simulator
 │   ├── privacy.html          # Public privacy policy
 │   ├── icons/                # Web assets & favicons
