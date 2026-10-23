@@ -108,7 +108,11 @@
     }
 
     const tweetArticles = document.querySelectorAll('article[data-testid="tweet"]');
-    if (!tweetArticles.length) return;
+    if (!tweetArticles.length) {
+      filteredElements.clear();
+      updateBadge();
+      return;
+    }
 
     const BATCH_SIZE = 15;
     const toAnalyze = [];
@@ -507,11 +511,20 @@
   /**
    * Updates tab action badge with count of hidden items
    */
+  function filteredOnThisPage() {
+    let count = 0;
+    for (const article of filteredElements) {
+      if (article.isConnected) count += 1;
+      else filteredElements.delete(article);
+    }
+    return count;
+  }
+
   function updateBadge() {
     try {
       chrome.runtime.sendMessage({
         action: 'UPDATE_BADGE',
-        payload: { count: filteredElements.size }
+        payload: { count: filteredOnThisPage() }
       });
     } catch (e) {
       // Extension context invalidated on reload

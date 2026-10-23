@@ -19,6 +19,12 @@ export const DEFAULT_SETTINGS = {
   apiKeys: {
     jev: ''
   },
+  freeTierOrigin: 'https://api.hide-the-annoying.turker.dev',
+  freeTier: {
+    session: '',
+    email: '',
+    expiresAt: 0
+  },
   endpoints: {
     jev: 'https://api.typesafe.ai/v1/systemone'
   },
@@ -76,6 +82,10 @@ export async function getSettings() {
     apiKeys: {
       ...DEFAULT_SETTINGS.apiKeys,
       ...(result.settings.apiKeys || {})
+    },
+    freeTier: {
+      ...DEFAULT_SETTINGS.freeTier,
+      ...(result.settings.freeTier || {})
     },
     endpoints: {
       ...DEFAULT_SETTINGS.endpoints,

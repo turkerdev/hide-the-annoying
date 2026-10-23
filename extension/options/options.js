@@ -2,6 +2,14 @@
  * Options Dashboard Logic for Hide The Annoying
  */
 
+import {
+  EMPTY_FREE_TIER,
+  ensureOriginPermission,
+  freeTierOrigin,
+  ownApiKey,
+  startGoogleSignIn
+} from '../lib/freetier.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Navigation Tabs
   const navItems = document.querySelectorAll('.nav-item');
@@ -26,6 +34,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const optJevKey = document.getElementById('opt-jev-key');
   const optJevModel = document.getElementById('opt-jev-model');
   const optJevEndpoint = document.getElementById('opt-jev-endpoint');
+  const optFreeTierStatus = document.getElementById('opt-free-tier-status');
+  const optFreeTierError = document.getElementById('opt-free-tier-error');
+  const btnFreeTierSignIn = document.getElementById('btn-free-tier-sign-in');
+  const btnFreeTierSignOut = document.getElementById('btn-free-tier-sign-out');
 
 
 
@@ -94,6 +106,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     optJevKey.value = s.apiKeys?.jev || '';
     optJevModel.value = s.models?.jev || 'jev-latest';
     optJevEndpoint.value = s.endpoints?.jev || 'https://api.typesafe.ai/v1/systemone';
+    if (ownApiKey(s)) document.getElementById('own-key').open = true;
+    renderFreeTierStatus(s);
     // Prompts
     optPromptInstructions.value = s.prompts?.customInstructions || '';
     optPromptPolitics.value = s.prompts?.politicsCriteria || '';
@@ -119,6 +133,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderBlocklist(s.blocklist || []);
   }
 
+  function renderFreeTierStatus(s) {
+    const tier = s?.freeTier || EMPTY_FREE_TIER;
+    const signedIn = Boolean(tier.session && Number(tier.expiresAt) > Date.now());
+    btnFreeTierSignIn.hidden = signedIn;
+    btnFreeTierSignOut.hidden = !signedIn;
+    if (!signedIn) {
+      optFreeTierStatus.textContent = 'Sign in with Google for the daily quota. Each post is read up to 1,000 characters.';
+      return;
+    }
+    const usingOwnKey = Boolean(ownApiKey(s));
+    optFreeTierStatus.textContent = usingOwnKey
+      ? `${tier.email}. Using your key.`
+      : `${tier.email}. Using the free quota.`;
+  }
+
+  btnFreeTierSignIn.addEventListener('click', async () => {
+    optFreeTierError.textContent = '';
+    btnFreeTierSignIn.disabled = true;
+    try {
+      const origin = freeTierOrigin(currentSettings);
+      const allowed = await ensureOriginPermission(origin);
+      if (!allowed) throw new Error('Free tier permission was declined');
+      const account = await startGoogleSignIn(origin);
+      const res = await chrome.runtime.sendMessage({
+        action: 'SAVE_SETTINGS',
+        payload: { freeTier: account }
+      });
+      if (res?.success) {
+        currentSettings = res.data;
+        renderFreeTierStatus(currentSettings);
+      }
+    } catch (err) {
+      optFreeTierError.textContent = err?.message || 'Sign-in failed';
+    } finally {
+      btnFreeTierSignIn.disabled = false;
+    }
+  });
+
+  btnFreeTierSignOut.addEventListener('click', async () => {
+    const res = await chrome.runtime.sendMessage({
+      action: 'SAVE_SETTINGS',
+      payload: { freeTier: EMPTY_FREE_TIER }
+    });
+    if (res?.success) {
+      currentSettings = res.data;
+      renderFreeTierStatus(currentSettings);
+    }
+  });
+
   function updateSensitivityLabel(val) {
     const num = parseFloat(val);
     let label = 'Balanced';
@@ -135,7 +198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function renderAllowlist(list) {
     allowlistBox.innerHTML = '';
     if (!list.length) {
-      allowlistBox.innerHTML = '<span style="color:var(--text-secondary);font-size:12px;padding:4px;">No users whitelisted.</span>';
+      allowlistBox.innerHTML = '<span style="color:var(--text-secondary);font-size:12px;padding:8px 0;">None yet.</span>';
       return;
     }
 
@@ -164,7 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function renderBlocklist(list) {
     blocklistBox.innerHTML = '';
     if (!list.length) {
-      blocklistBox.innerHTML = '<span style="color:var(--text-secondary);font-size:12px;padding:4px;">No users manually blocked.</span>';
+      blocklistBox.innerHTML = '<span style="color:var(--text-secondary);font-size:12px;padding:8px 0;">None yet.</span>';
       return;
     }
 
@@ -235,7 +298,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     if (!filtered.length) {
-      cacheTableBody.innerHTML = `<tr><td colspan="6" class="text-center" style="color:var(--text-secondary);padding:18px;">No users found in cache.</td></tr>`;
+      cacheTableBody.innerHTML = `<tr><td colspan="6" class="text-center">Nothing cached.</td></tr>`;
       return;
     }
 
@@ -282,7 +345,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Save All Changes
   btnSaveAll.addEventListener('click', async () => {
     btnSaveAll.disabled = true;
-    btnSaveAll.textContent = 'Saving...';
+    btnSaveAll.textContent = 'Saving…';
 
     const customKwArray = optCustomKeywords.value
       .split(',')
@@ -340,18 +403,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       if (res && res.success) {
         currentSettings = res.data;
-        saveStatus.textContent = 'All changes saved successfully!';
+        saveStatus.textContent = 'Saved';
         saveStatus.style.color = 'var(--success-color)';
         setTimeout(() => {
-          saveStatus.textContent = 'All changes saved';
-        }, 3000);
+          saveStatus.textContent = 'Saved';
+          saveStatus.style.color = '';
+        }, 1600);
       }
     } catch (err) {
       saveStatus.textContent = `Error: ${err.message}`;
       saveStatus.style.color = 'var(--danger-color)';
     } finally {
       btnSaveAll.disabled = false;
-      btnSaveAll.textContent = 'Save All Changes';
+      btnSaveAll.textContent = 'Save';
     }
   });
 
@@ -367,9 +431,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Backup & Restore
   btnExportJson.addEventListener('click', async () => {
     const backup = {
-      version: '1.0.0',
+      version: '1.1.0',
       exportedAt: new Date().toISOString(),
-      settings: currentSettings,
+      settings: {
+        ...currentSettings,
+        freeTier: currentSettings?.freeTier
+          ? { ...currentSettings.freeTier, session: '' }
+          : EMPTY_FREE_TIER
+      },
       userCache: userCacheData
     };
 
@@ -406,6 +475,68 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     };
     reader.readAsText(file);
+  });
+
+  const testHandle = document.getElementById('test-handle');
+  const testText = document.getElementById('test-text');
+  const btnRunTest = document.getElementById('btn-run-test');
+  const testResult = document.getElementById('test-result');
+
+  btnRunTest.addEventListener('click', async () => {
+    const handle = testHandle.value.trim();
+    const text = testText.value.trim();
+
+    if (!handle && !text) {
+      testResult.hidden = false;
+      testResult.textContent = 'Enter a handle or some post text.';
+      return;
+    }
+
+    const endpoint = currentSettings?.endpoints?.jev;
+    if (endpoint && chrome.permissions) {
+      try {
+        const url = new URL(endpoint);
+        const originPattern = `${url.origin}/*`;
+        const hasPerm = await chrome.permissions.contains({ origins: [originPattern] });
+        if (!hasPerm) await chrome.permissions.request({ origins: [originPattern] });
+      } catch (_) {}
+    }
+
+    btnRunTest.disabled = true;
+    btnRunTest.textContent = 'Checking…';
+    testResult.hidden = false;
+    testResult.textContent = 'Checking…';
+
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: 'TEST_CLASSIFICATION',
+        payload: {
+          context: {
+            handle: handle.replace(/^@/, ''),
+            text,
+            name: handle
+          }
+        }
+      });
+
+      if (response && response.success) {
+        const d = response.data;
+        const tagClass = d.isAnnoying ? 'annoying' : 'clean';
+        const tagText = d.isAnnoying ? (d.category || 'Filtered') : 'Clean';
+        const confPercent = Math.round((d.confidence || 0) * 100);
+        testResult.innerHTML = `
+          <div><span class="badge-tag ${tagClass}">${escapeHtml(tagText)}</span> ${confPercent}%</div>
+          <div>${escapeHtml(d.reason || '')}</div>
+        `;
+      } else {
+        testResult.textContent = response?.error || 'Check failed';
+      }
+    } catch (err) {
+      testResult.textContent = err.message || 'Check failed';
+    } finally {
+      btnRunTest.disabled = false;
+      btnRunTest.textContent = 'Check';
+    }
   });
 
   function escapeHtml(str) {

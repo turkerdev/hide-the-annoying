@@ -183,7 +183,7 @@
     <div class="container">
       <div class="doc-header">
         <h1 class="doc-title">Privacy Policy</h1>
-        <div class="doc-meta">Effective Date: October 2, 2026 · Hide The Annoying Browser Extension</div>
+        <div class="doc-meta">Effective Date: October 23, 2026 · Hide The Annoying Browser Extension</div>
       </div>
 
       <div class="doc-section">
@@ -198,8 +198,9 @@
         <p>The Extension handles minimal data strictly required to deliver filtering services:</p>
         <ul>
           <li><strong>Locally Stored Settings:</strong> Your preferences (active topics, filter mode, sensitivity, allowlist, blocklist, and cached decisions) are stored exclusively on your device in your browser's <code>chrome.storage.local</code>.</li>
-          <li><strong>API Credentials:</strong> Your TypeSafe Jev API key is stored locally in encrypted extension storage. It is transmitted directly to <code>https://api.typesafe.ai</code> via secure HTTPS headers and is never sent to any intermediary server.</li>
-          <li><strong>Website Content:</strong> When visiting X (formerly Twitter), the extension reads the text, display names, and handles of publicly visible tweets within your timeline to classify them via TypeSafe Jev.</li>
+          <li><strong>API Credentials:</strong> A TypeSafe key you paste stays in <code>chrome.storage.local</code> and is sent only to the endpoint you configure. The free-tier Google session stays there too.</li>
+          <li><strong>Free tier account:</strong> Google sign-in is limited to Gmail. The free-tier API stores your Google account id, email, and a daily classification count. It does not store post text.</li>
+          <li><strong>Website Content:</strong> On X, the extension reads publicly visible post text, names, and handles. Your own key sends that text to your endpoint. The free tier sends it to our proxy, which forwards it to TypeSafe Jev.</li>
           <li><strong>Zero Tracking:</strong> The Extension does NOT monitor your general browsing history, search queries, passwords, cookies, IP identity, or private direct messages.</li>
         </ul>
       </div>
@@ -207,7 +208,7 @@
       <div class="doc-section">
         <h2>🤖 3. Third-Party AI Services</h2>
         <p>
-          Classification requests are transmitted directly from your client browser to <strong>TypeSafe AI (Jev System One)</strong> at <code>https://api.typesafe.ai/v1/systemone</code> subject to TypeSafe AI's API terms and security guidelines.
+          With your own key, classification goes directly to <strong>TypeSafe AI (Jev System One)</strong>. On the free tier, our Cloudflare Worker holds the shared key and forwards the same request. Google OAuth is used only to confirm the account is a Gmail address.
         </p>
         <p>
           Payloads sent to TypeSafe AI contain solely the candidate post text and username required for topical classification (politics, soccer, finance).

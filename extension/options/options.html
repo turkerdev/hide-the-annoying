@@ -3,247 +3,224 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hide The Annoying - Settings & Management</title>
+  <title>Hide The Annoying</title>
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
-  <div class="dashboard-container">
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar">
+  <div class="page">
+    <header class="top">
       <div class="brand">
-        <img src="../icons/icon-48.png" alt="Logo" class="logo">
-        <div>
-          <h2>Hide The Annoying</h2>
-          <span class="version">Settings Dashboard</span>
-        </div>
+        <img src="../icons/icon-48.png" alt="" class="logo" width="22" height="22">
+        <h1>Hide The Annoying</h1>
       </div>
-      <nav class="nav-menu">
-        <button class="nav-item active" data-tab="tab-providers">🤖 Decision Providers</button>
-        <button class="nav-item" data-tab="tab-rules">⚙️ Topics & Sensitivity</button>
-        <button class="nav-item" data-tab="tab-lists">📋 Allowlist & Blocklist</button>
-        <button class="nav-item" data-tab="tab-cache">💾 Cached Users (<span id="cache-count">0</span>)</button>
-        <button class="nav-item" data-tab="tab-backup">🔄 Backup & Restore</button>
+      <div class="save-cluster">
+        <span id="save-status" class="save-status">Saved</span>
+        <button id="btn-save-all" class="btn btn-primary" type="button">Save</button>
+      </div>
+      <nav class="nav-menu" aria-label="Settings">
+        <button class="nav-item active" data-tab="tab-providers" type="button">Account</button>
+        <button class="nav-item" data-tab="tab-rules" type="button">Topics</button>
+        <button class="nav-item" data-tab="tab-lists" type="button">Lists</button>
+        <button class="nav-item" data-tab="tab-cache" type="button">Cache <span id="cache-count">0</span></button>
+        <button class="nav-item" data-tab="tab-backup" type="button">Backup</button>
       </nav>
-      <div class="sidebar-footer">
-        <button id="btn-save-all" class="btn btn-primary btn-full">Save All Changes</button>
-        <div id="save-status" class="save-status">All changes saved</div>
-      </div>
-    </aside>
+    </header>
 
-    <!-- Main Content Area -->
     <main class="content-area">
-      <!-- TAB 1: Decision Providers -->
       <section id="tab-providers" class="tab-panel active">
-        <header class="panel-header">
-          <h2>TypeSafe Jev Engine & Prompts</h2>
-          <p>Configure TypeSafe Jev System One API access and semantic prompts.</p>
-        </header>
-
-
-        <!-- 1. TypeSafe Jev Configuration -->
-        <div class="card provider-card">
-          <div class="provider-header">
-            <div>
-              <h3>TypeSafe Jev (System One)</h3>
-              <p class="subtitle">Ultra-fast calibrated decision model for classifications (70-300ms)</p>
-            </div>
-            <span class="provider-tag primary">Active Engine</span>
-          </div>
-          <div class="grid-2">
-            <div class="form-group">
-              <label for="opt-jev-key">TypeSafe API Key</label>
-              <input type="password" id="opt-jev-key" class="text-input" placeholder="Bearer ts_...">
-            </div>
-            <div class="form-group">
-              <label for="opt-jev-model">Model ID</label>
-              <input type="text" id="opt-jev-model" class="text-input" value="jev-latest">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="opt-jev-endpoint">API Endpoint</label>
-            <input type="text" id="opt-jev-endpoint" class="text-input" value="https://api.typesafe.ai/v1/systemone">
-          </div>
+        <p class="lead" id="opt-free-tier-status">Sign in with Google for the daily quota. Each post is read up to 1,000 characters.</p>
+        <div class="actions">
+          <button type="button" id="btn-free-tier-sign-in" class="btn btn-primary">Continue with Google</button>
+          <button type="button" id="btn-free-tier-sign-out" class="btn btn-quiet" hidden>Sign out</button>
         </div>
-        <!-- 4. Jev Decision Prompt Engineering -->
-        <div class="card">
-          <div class="provider-header">
-            <div>
-              <h3>🧠 Jev / AI Decision Prompt & Criteria Customization</h3>
-              <p class="subtitle">Customize the exact semantic instructions and classification rubrics sent to Jev</p>
+        <p class="error" id="opt-free-tier-error"></p>
+
+        <details class="fold" id="own-key">
+          <summary>Own key</summary>
+          <div class="fold-body">
+            <p class="hint">Optional. Posts go straight to your endpoint and skip the daily limit.</p>
+            <div class="pair">
+              <label class="field">
+                <span>TypeSafe key</span>
+                <input type="password" id="opt-jev-key" class="text-input" placeholder="TypeSafe key" autocomplete="off">
+              </label>
+              <label class="field">
+                <span>Model</span>
+                <input type="text" id="opt-jev-model" class="text-input" value="jev-latest">
+              </label>
             </div>
-            <button type="button" id="btn-reset-prompts" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">Reset to Defaults</button>
+            <label class="field">
+              <span>Endpoint</span>
+              <input type="text" id="opt-jev-endpoint" class="text-input" value="https://api.typesafe.ai/v1/systemone">
+            </label>
           </div>
-          <div class="form-group">
-            <label for="opt-prompt-instructions">Main Question Instructions (Evaluated on every post)</label>
-            <textarea id="opt-prompt-instructions" class="text-area" rows="3"></textarea>
-            <p class="help-text">Guides Jev to recognize national parties, localized suffixes (-'li/-li), ministries, and public appointments across all languages without hardcoding.</p>
-          </div>
-          <div class="form-group">
-            <label for="opt-prompt-politics">Politics Decision Criteria (Rubric given to Jev for 'politics')</label>
-            <textarea id="opt-prompt-politics" class="text-area" rows="3"></textarea>
-          </div>
-          <div class="grid-2">
-            <div class="form-group">
-              <label for="opt-prompt-soccer">Soccer Decision Criteria</label>
-              <textarea id="opt-prompt-soccer" class="text-area" rows="2"></textarea>
+        </details>
+
+        <details class="fold">
+          <summary>Prompt</summary>
+          <div class="fold-body">
+            <div class="fold-head">
+              <p class="hint">Instructions sent with every post.</p>
+              <button type="button" id="btn-reset-prompts" class="btn btn-quiet">Reset</button>
             </div>
-            <div class="form-group">
-              <label for="opt-prompt-finance">Finance Decision Criteria</label>
-              <textarea id="opt-prompt-finance" class="text-area" rows="2"></textarea>
+            <label class="field">
+              <span>Instructions</span>
+              <textarea id="opt-prompt-instructions" class="text-area" rows="3"></textarea>
+            </label>
+            <label class="field">
+              <span>Politics</span>
+              <textarea id="opt-prompt-politics" class="text-area" rows="3"></textarea>
+            </label>
+            <div class="pair">
+              <label class="field">
+                <span>Soccer</span>
+                <textarea id="opt-prompt-soccer" class="text-area" rows="3"></textarea>
+              </label>
+              <label class="field">
+                <span>Crypto</span>
+                <textarea id="opt-prompt-finance" class="text-area" rows="3"></textarea>
+              </label>
             </div>
           </div>
-        </div>
+        </details>
+
+        <details class="fold">
+          <summary>Try a post</summary>
+          <div class="fold-body">
+            <p class="hint">Check one post with the saved settings.</p>
+            <input type="text" id="test-handle" class="text-input" placeholder="@handle">
+            <textarea id="test-text" class="text-area" rows="3" placeholder="Post text"></textarea>
+            <button type="button" id="btn-run-test" class="btn btn-quiet">Check</button>
+            <div id="test-result" class="try-result" hidden></div>
+          </div>
+        </details>
       </section>
 
-      <!-- TAB 2: Topics & Sensitivity -->
       <section id="tab-rules" class="tab-panel">
-        <header class="panel-header">
-          <h2>Topics, Custom Keywords & Sensitivity</h2>
-          <p>Customize detection thresholds and which annoying topics trigger filtering.</p>
-        </header>
-
-        <div class="card">
-          <h3>Active Detection Categories</h3>
-          <div class="checkbox-group-vertical">
-            <label class="checkbox-row">
-              <input type="checkbox" id="rule-cat-soccer">
-              <div class="check-text">
-                <strong>⚽ Football / Soccer</strong>
-                <span>Matches, Premier League, Champions League, Barca/Real, player transfers, fantasy league.</span>
-              </div>
-            </label>
-            <label class="checkbox-row">
-              <input type="checkbox" id="rule-cat-finance">
-              <div class="check-text">
-                <strong>📈 Finance / Crypto</strong>
-                <span>Bitcoin, memecoins, trading signals, day traders, passive income gurus, stock advice.</span>
-              </div>
-            </label>
-            <label class="checkbox-row">
+        <p class="lead">What gets filtered, and how sure it has to be.</p>
+        <div class="topics">
+          <label class="topic">
+            <span class="topic-copy">
+              <strong>Politics</strong>
+              <span>Parties, ministers, elections, and political ragebait.</span>
+            </span>
+            <span class="switch">
               <input type="checkbox" id="rule-cat-politics">
-              <div class="check-text">
-                <strong>🏛️ Politics & National Parties</strong>
-                <span>National party politics (AKP, CHP, MHP, DEM, Tories, etc.), ministers, state bureaucracy, elections, and political ragebait.</span>
-              </div>
-            </label>
-            <label class="checkbox-row">
+              <span class="slider"></span>
+            </span>
+          </label>
+          <label class="topic">
+            <span class="topic-copy">
+              <strong>Soccer</strong>
+              <span>Matches, transfers, leagues, and fantasy.</span>
+            </span>
+            <span class="switch">
+              <input type="checkbox" id="rule-cat-soccer">
+              <span class="slider"></span>
+            </span>
+          </label>
+          <label class="topic">
+            <span class="topic-copy">
+              <strong>Crypto</strong>
+              <span>Coins, trading calls, and get-rich posts.</span>
+            </span>
+            <span class="switch">
+              <input type="checkbox" id="rule-cat-finance">
+              <span class="slider"></span>
+            </span>
+          </label>
+          <label class="topic">
+            <span class="topic-copy">
+              <strong>Custom</strong>
+              <span>Phrases you list below.</span>
+            </span>
+            <span class="switch">
               <input type="checkbox" id="rule-cat-custom">
-              <div class="check-text">
-                <strong>⚙️ Custom Topics & Keywords</strong>
-                <span>Filter custom phrases and subcultures defined below.</span>
-              </div>
-            </label>
-          </div>
+              <span class="slider"></span>
+            </span>
+          </label>
         </div>
 
-        <!-- Custom Keywords -->
-        <div class="card">
-          <h3>Custom Blocked Keywords</h3>
-          <p class="subtitle">Comma-separated terms or phrases to block (e.g. <em>dropshipping, astrology, nft</em>)</p>
-          <textarea id="opt-custom-keywords" class="text-area" rows="3" placeholder="dropshipping, solana, ai influencer, astrolgy"></textarea>
-        </div>
+        <label class="field">
+          <span>Custom phrases</span>
+          <textarea id="opt-custom-keywords" class="text-area" rows="2" placeholder="dropshipping, astrology, nft"></textarea>
+          <span class="hint">Comma-separated. Used when Custom is on.</span>
+        </label>
 
-        <!-- Sensitivity Slider -->
-        <div class="card">
-          <div class="slider-header">
-            <h3>Decision Confidence Threshold</h3>
-            <span id="sensitivity-value" class="slider-val">0.60 (Balanced)</span>
+        <div class="field">
+          <div class="field-head">
+            <span>Confidence</span>
+            <span id="sensitivity-value" class="value">0.60 (Balanced)</span>
           </div>
           <input type="range" id="opt-sensitivity" min="0.2" max="0.95" step="0.05" value="0.6">
-          <div class="slider-labels">
-            <span>Aggressive (0.2)</span>
-            <span>Balanced (0.6)</span>
-            <span>Strict / Conservative (0.95)</span>
+          <div class="range-labels">
+            <span>Catches more</span>
+            <span>Catches less</span>
           </div>
         </div>
       </section>
 
-      <!-- TAB 3: Allowlist & Blocklist -->
       <section id="tab-lists" class="tab-panel">
-        <header class="panel-header">
-          <h2>User Lists Management</h2>
-          <p>Explicitly whitelist friends or permanently blacklist persistent spam accounts.</p>
-        </header>
-
-        <div class="grid-2">
-          <!-- Allowlist -->
-          <div class="card">
-            <h3>🛡️ Whitelist / Allowlist</h3>
-            <p class="subtitle">These users will NEVER be hidden or collapsed.</p>
+        <p class="lead">Handles that are always kept, or always hidden.</p>
+        <div class="split">
+          <div class="block">
+            <h2>Allow</h2>
+            <p class="hint">Always kept.</p>
             <div class="add-bar">
-              <input type="text" id="new-allow-input" placeholder="@handle to allow" class="text-input">
-              <button id="btn-add-allow" class="btn btn-secondary">Add</button>
+              <input type="text" id="new-allow-input" placeholder="@handle" class="text-input">
+              <button id="btn-add-allow" class="btn btn-quiet" type="button">Add</button>
             </div>
             <div class="list-container" id="allowlist-box"></div>
           </div>
-
-          <!-- Blocklist -->
-          <div class="card">
-            <h3>⛔ Blacklist / Blocklist</h3>
-            <p class="subtitle">These users will ALWAYS be hidden immediately.</p>
+          <div class="block">
+            <h2>Block</h2>
+            <p class="hint">Always hidden.</p>
             <div class="add-bar">
-              <input type="text" id="new-block-input" placeholder="@handle to block" class="text-input">
-              <button id="btn-add-block" class="btn btn-secondary">Add</button>
+              <input type="text" id="new-block-input" placeholder="@handle" class="text-input">
+              <button id="btn-add-block" class="btn btn-quiet" type="button">Add</button>
             </div>
             <div class="list-container" id="blocklist-box"></div>
           </div>
         </div>
       </section>
 
-      <!-- TAB 4: Cached Decisions -->
       <section id="tab-cache" class="tab-panel">
-        <header class="panel-header">
-          <div class="header-split">
-            <div>
-              <h2>Cached User Decisions</h2>
-              <p>Users classified by Jev, Clef, Luna, or Local Heuristics stored locally to save API requests.</p>
-            </div>
-            <button id="btn-clear-cache" class="btn btn-danger">Clear All Cache</button>
-          </div>
-        </header>
-
-        <div class="card">
-          <div class="table-search-bar">
-            <input type="text" id="cache-search" placeholder="Search by @handle, category, or reason..." class="text-input">
-          </div>
-          <div class="table-responsive">
-            <table class="cache-table">
-              <thead>
-                <tr>
-                  <th>Handle</th>
-                  <th>Status</th>
-                  <th>Category</th>
-                  <th>Reason</th>
-                  <th>Confidence</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="cache-table-body">
-                <tr><td colspan="6" class="text-center">Loading cache...</td></tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="panel-tools">
+          <p class="lead">Kept on this device so a post is classified once.</p>
+          <button id="btn-clear-cache" class="btn btn-danger" type="button">Clear</button>
+        </div>
+        <input type="text" id="cache-search" placeholder="Search handle, topic, or reason" class="text-input">
+        <div class="table-responsive">
+          <table class="cache-table">
+            <thead>
+              <tr>
+                <th>Handle</th>
+                <th>Status</th>
+                <th>Topic</th>
+                <th>Reason</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="cache-table-body">
+              <tr><td colspan="6" class="text-center">Loading cache…</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
-      <!-- TAB 5: Backup & Restore -->
       <section id="tab-backup" class="tab-panel">
-        <header class="panel-header">
-          <h2>Backup & Restore</h2>
-          <p>Export your configuration, custom rules, and lists or transfer them to another device.</p>
-        </header>
-
-        <div class="grid-2">
-          <div class="card">
-            <h3>Export Configuration</h3>
-            <p class="subtitle">Download a JSON snapshot containing your settings, lists, and cache.</p>
-            <button id="btn-export-json" class="btn btn-primary" style="margin-top: 10px;">Download Backup (.json)</button>
+        <p class="lead">Move settings, lists, and cache to another browser.</p>
+        <div class="split">
+          <div class="block">
+            <h2>Download</h2>
+            <p class="hint">The free-tier session is left out.</p>
+            <button id="btn-export-json" class="btn btn-primary" type="button">Download backup</button>
           </div>
-
-          <div class="card">
-            <h3>Import Configuration</h3>
-            <p class="subtitle">Restore configuration from a previously exported JSON backup file.</p>
-            <input type="file" id="import-file-input" accept=".json" style="margin-top: 10px;">
+          <div class="block">
+            <h2>Restore</h2>
+            <p class="hint">Replaces the settings in this browser.</p>
+            <input type="file" id="import-file-input" accept=".json">
           </div>
         </div>
       </section>

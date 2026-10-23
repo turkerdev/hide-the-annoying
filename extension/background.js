@@ -39,6 +39,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true; // Keep channel open for async response
 });
 
+async function setFilteredBadge(tabId, count) {
+  const safeCount = Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+  const text = safeCount > 999 ? '999+' : safeCount > 0 ? String(safeCount) : '';
+  const title = safeCount > 0
+    ? `Hide The Annoying — ${safeCount} filtered`
+    : 'Hide The Annoying';
+  await chrome.action.setBadgeBackgroundColor({ tabId, color: '#e0245e' });
+  if (chrome.action.setBadgeTextColor) {
+    await chrome.action.setBadgeTextColor({ tabId, color: '#ffffff' });
+  }
+  await chrome.action.setBadgeText({ tabId, text });
+  await chrome.action.setTitle({ tabId, title });
+}
+
 async function handleMessage(message, sender) {
   const { action, payload } = message;
 
@@ -119,10 +133,7 @@ async function handleMessage(message, sender) {
 
     case 'UPDATE_BADGE': {
       if (sender.tab?.id) {
-        const count = payload.count || 0;
-        const text = count > 0 ? String(count) : '';
-        await chrome.action.setBadgeText({ tabId: sender.tab.id, text });
-        await chrome.action.setBadgeBackgroundColor({ tabId: sender.tab.id, color: '#e0245e' });
+        await setFilteredBadge(sender.tab.id, payload?.count || 0);
       }
       return true;
     }

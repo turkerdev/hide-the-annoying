@@ -26,6 +26,7 @@ echo "📌 Detected version: v${VERSION}"
 echo "🧪 Running JavaScript syntax checks..."
 node -c "${EXT_DIR}/background.js" \
         "${EXT_DIR}/content.js" \
+        "${EXT_DIR}/lib/freetier.js" \
         "${EXT_DIR}/lib/providers.js" \
         "${EXT_DIR}/lib/storage.js" \
         "${EXT_DIR}/popup/popup.js" \
@@ -60,7 +61,7 @@ echo "📦 Packaging extension..."
     options \
     README.md \
     PRIVACY.md \
-    -x "*.DS_Store" "*__MACOSX*" "*.git*"
+    -x "*.DS_Store" "*__MACOSX*" "*.git*" "*.test.mjs"
 )
 
 # Duplicate to versioned release in dist/

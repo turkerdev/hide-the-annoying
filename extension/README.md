@@ -65,7 +65,7 @@ Click the **Hide The Annoying** icon in your Chrome toolbar or right-click and c
 ### TypeSafe Jev (System One Engine)
 - **API Endpoint:** `https://api.typesafe.ai/v1/systemone`
 - **Model:** `jev-latest`
-- Enter your TypeSafe API key in the extension popup or Options dashboard.
+- Sign in with Gmail for the free tier, or enter your own TypeSafe API key. A personal key calls Jev directly and skips the free-tier quota. The worker that serves the free tier lives in the hide-the-annoying-server project.
 - Jev evaluates candidate posts with calibrated probabilities and typed structured choices in ~70–300ms.
 
 ---

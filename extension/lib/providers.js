@@ -3,6 +3,8 @@
  * Pure AI-powered semantic classifications via System One
  */
 
+import { FREE_TIER_MAX_CHARS, resolveClassifierAuth } from './freetier.js';
+
 export class BaseProvider {
   constructor(id, name) {
     this.id = id;
@@ -212,28 +214,40 @@ export class TypeSafeJevProvider extends BaseProvider {
   }
 
   async classify(context, settings) {
-    const rawKey = settings.apiKeys?.jev || '';
-    const apiKey = rawKey.trim().replace(/^Bearer\s+/i, '');
-    let endpoint = (settings.endpoints?.jev || 'https://api.typesafe.ai/v1/systemone').trim();
-    let model = (settings.models?.jev || 'jev-latest').trim();
-
-    // If user points to Cloudflare Workers AI, ensure valid /model in JSON body
-    if (endpoint.includes('cloudflare.com')) {
-      if (model.toLowerCase().includes('flash')) model = 'clef-flash';
-      else if (model.toLowerCase().includes('clef')) model = 'clef';
-    }
-
-    if (!apiKey) {
+    const auth = resolveClassifierAuth(settings);
+    if (auth.mode === 'expired') {
       return {
         isAnnoying: false,
         category: 'clean',
-        reason: 'API key required. Enter key in extension popup or options.',
+        reason: 'Free tier session expired. Sign in with Google again.',
+        confidence: 0,
+        provider: 'jev'
+      };
+    }
+    if (auth.mode !== 'own-key' && auth.mode !== 'free-tier') {
+      return {
+        isAnnoying: false,
+        category: 'clean',
+        reason: 'Sign in with Gmail, or add your own TypeSafe key.',
         confidence: 0,
         provider: 'jev'
       };
     }
 
-    const state = formatEvaluationState(context);
+    const apiKey = auth.apiKey;
+    let endpoint = auth.endpoint;
+    let model = (settings.models?.jev || 'jev-latest').trim();
+
+    // If a personal key points at Cloudflare Workers AI, send a Clef model id.
+    if (auth.mode === 'own-key' && endpoint.includes('cloudflare.com')) {
+      if (model.toLowerCase().includes('flash')) model = 'clef-flash';
+      else if (model.toLowerCase().includes('clef')) model = 'clef';
+    }
+
+    let state = formatEvaluationState(context);
+    if (auth.mode === 'free-tier' && state.length > FREE_TIER_MAX_CHARS) {
+      state = state.slice(0, FREE_TIER_MAX_CHARS);
+    }
     const questions = buildQuestionsPayload(settings);
 
     const payload = {
